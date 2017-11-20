@@ -1,21 +1,16 @@
 {
-  "name": "pfe-polybot",
+  "name": "pfe-polybot-stressbot",
   "version": "1.0.0",
-  "description": "Chatbot modulable et scalable pour Slack",
+  "description": "Slackbot utiliser pour effectuer des stress test au bot principal",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
   },
   "keywords": [
     "polytech'nice-sophia",
     "pfe",
     "polybot",
-    "slack",
-    "module"
+    "stress"
   ],
   "author": "Robin Alonzo, Gaspard Lacroix",
   "license": "ISC",
@@ -24,8 +19,6 @@
   },
   "homepage": "https://github.com/gaspardL/PFE-Polybot#readme",
   "dependencies": {
-    "@slack/client": "^3.14.2",
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2"
+    "@slack/client": "^3.14.2"
   }
 }
