@@ -5,9 +5,6 @@ var bot_token = process.env.SLACK_BOT_TOKEN || '';
 var rtm = new RtmClient(bot_token);
 rtm.start();
 
-rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-	if (message.text === "Hello.") {
-		var channel = "D82METR8T"; //could also be a channel, group, DM, or user ID (C1234), or a username (@don)
-		rtm.sendMessage("Hello <@" + message.user + ">!", message.channel);
-	}
-});
+for(var i = 0; i < 1000){
+	rtm.sendMessage("hi", "C82QE5S66");
+}
