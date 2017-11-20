@@ -8,8 +8,12 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	if (message.text === "charge") {
 		var channel = "D82METR8T"; //could also be a channel, group, DM, or user ID (C1234), or a username (@don)
+		var nbErr = 0;
 		for(var i =0; i < 1000; i++){
-			rtm.sendMessage("hi", message.channel);
+			try{
+				rtm.sendMessage("hi", message.channel);
+			}catch(e){nbErr++;}
 		}
+		console.log("Nombre d'erreurs : "+nbErr);
 	}
 });
