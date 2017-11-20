@@ -1,31 +1,21 @@
 {
-  "name": "pfe-polybot",
+  "name": "@slack/events-api-example-greet-and-react",
   "version": "1.0.0",
-  "description": "Chatbot modulable et scalable pour Slack",
-  "main": "app.js",
+  "private": true,
+  "description": "A basic example of using the Slack Events API Adapter for Node",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
-  },
-  "keywords": [
-    "polytech'nice-sophia",
-    "pfe",
-    "polybot",
-    "slack",
-    "module"
-  ],
-  "author": "Robin Alonzo, Gaspard Lacroix",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/gaspardL/PFE-Polybot/issues"
-  },
-  "homepage": "https://github.com/gaspardL/PFE-Polybot#readme",
+  "author": "Ankur Oberoi <aoberoi@gmail.com>",
+  "license": "MIT",
   "dependencies": {
-    "@slack/client": "^3.14.2",
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2"
+    "@aoberoi/passport-slack": "^1.0.5",
+    "@slack/client": "^3.8.1",
+    "@slack/events-api": "^1.0.0",
+    "body-parser": "^1.16.1",
+    "dotenv": "^4.0.0",
+    "express": "^4.14.1",
+    "passport": "^0.3.2"
   }
 }
