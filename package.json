@@ -4,7 +4,12 @@
   "description": "Bot modulable pour Slack",
   "main": "index.js",
   "scripts": {
+		"start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+	"repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
   },
   "keywords": [
     "polytech'nice-sophia",
