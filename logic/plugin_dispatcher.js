@@ -1,8 +1,9 @@
 "use strict";
+
 const levenshtein = require("./levenshtein");
 
 function help(){
-    return "Help!"
+    return "Help!";
 }
 
 var plugin_help = {
@@ -29,13 +30,13 @@ function match(message,plugin){
             return true;
         }
     }
-    return false
+    return false;
 }
 
 module.exports.dispatch = function (message){
     message = message.toLowerCase();
     if(match(message,plugin_help)){
-        return plugin_help.callback()
+        return plugin_help.callback();
     }
     return false;
 };
