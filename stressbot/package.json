@@ -4,6 +4,7 @@
   "description": "Slackbot utiliser pour effectuer des stress test au bot principal",
   "main": "app.js",
   "scripts": {
+    "start" : "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -12,6 +13,10 @@
     "polybot",
     "stress"
   ],
+	"repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
+  },
   "author": "Robin Alonzo, Gaspard Lacroix",
   "license": "ISC",
   "bugs": {
