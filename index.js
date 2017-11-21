@@ -1,3 +1,4 @@
+"use strict";
 // Load environment variables from `.env` file (optional)
 require('dotenv').config();
 
@@ -9,11 +10,12 @@ const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const plugindispatcher = require('./logic/plugin_dispatcher');
-
 console.log("SLACK_CLIENT_ID="+process.env.SLACK_CLIENT_ID);
 console.log("SLACK_VERIFICATION_TOKEN="+process.env.SLACK_VERIFICATION_TOKEN);
 console.log("SLACK_CLIENT_SECRET="+process.env.SLACK_CLIENT_SECRET);
+
+const dispatcher = require("./logic/plugin_dispatcher");
+console.log(dispatcher);
 
 // *** Initialize event adapter using verification token from environment variables ***
 const slackEvents = slackEventsApi.createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN, {
@@ -63,10 +65,10 @@ app.get('/auth/slack', passport.authenticate('slack', {
 app.get('/auth/slack/callback',
 passport.authenticate('slack', { session: false }),
 (req, res) => {
-	res.send('<p>Greet and React was successfully installed on your team.</p>');
+	res.send('<p>PolyBot was successfully installed on your team.</p>');
 },
 (err, req, res, next) => {
-	res.status(500).send(`<p>Greet and React failed to install</p> <pre>${err}</pre>`);
+	res.status(500).send(`<p>PolyBot failed to install</p> <pre>${err}</pre>`);
 }
 );
 
@@ -78,19 +80,26 @@ app.use('/slack/events', slackEvents.expressMiddleware());
 // *** Greeting any user that says "hi" ***
 slackEvents.on('message', (message, body) => {
 	// Only deal with messages that have no subtype (plain messages) and contain 'hi'
-	if (!message.subtype) {
+	/*
+	if (!message.subtype && message.text.indexOf('hi') >= 0) {
 		// Initialize a client
 		const slack = getClientByTeamId(body.team_id);
 		// Handle initialization failure
 		if (!slack) {
 			return console.error('No authorization found for this team. Did you install this app again after restarting?');
 		}
-
-		var response = plugindispatcher.dispatch(message.text);
-
 		// Respond to the message back in the same channel
-		slack.chat.postMessage(message.channel, response)
+		slack.chat.postMessage(message.channel, `Hello <@${message.user}>! :tada:`)
 		.catch(console.error);
+	}
+	*/
+    const slack = getClientByTeamId(body.team_id);
+    console.log(message);
+	if(!message.subtype && slack){
+		let result = dispatcher.dispatch(message.text);
+		if(result){
+			slack.chat.postMessage(message.channel,result).catch(console.error)
+		}
 	}
 });
 
