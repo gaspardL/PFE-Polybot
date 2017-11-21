@@ -9,11 +9,11 @@ const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const plugindispatcher = require('./logic/plugin_dispatcher');
-
 console.log("SLACK_CLIENT_ID="+process.env.SLACK_CLIENT_ID);
 console.log("SLACK_VERIFICATION_TOKEN="+process.env.SLACK_VERIFICATION_TOKEN);
 console.log("SLACK_CLIENT_SECRET="+process.env.SLACK_CLIENT_SECRET);
+
+const dispatcher = require("./logic/plugindispacher");
 
 // *** Initialize event adapter using verification token from environment variables ***
 const slackEvents = slackEventsApi.createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN, {
@@ -78,19 +78,26 @@ app.use('/slack/events', slackEvents.expressMiddleware());
 // *** Greeting any user that says "hi" ***
 slackEvents.on('message', (message, body) => {
 	// Only deal with messages that have no subtype (plain messages) and contain 'hi'
-	if (!message.subtype) {
+	/*
+	if (!message.subtype && message.text.indexOf('hi') >= 0) {
 		// Initialize a client
 		const slack = getClientByTeamId(body.team_id);
 		// Handle initialization failure
 		if (!slack) {
 			return console.error('No authorization found for this team. Did you install this app again after restarting?');
 		}
-
-		var response = plugindispatcher.dispatch(message.text);
-
 		// Respond to the message back in the same channel
-		slack.chat.postMessage(message.channel, response)
+		slack.chat.postMessage(message.channel, `Hello <@${message.user}>! :tada:`)
 		.catch(console.error);
+	}
+	*/
+    const slack = getClientByTeamId(body.team_id);
+
+	if(!message.subtype && slack){
+		let result = dispatcher.dispatch(message.text);
+		if(result){
+			slack.chat.postMessage(message.channel,result).catch(console.error)
+		}
 	}
 });
 
