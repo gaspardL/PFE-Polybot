@@ -1,3 +1,4 @@
+"use strict";
 // Load environment variables from `.env` file (optional)
 require('dotenv').config();
 
@@ -13,7 +14,8 @@ console.log("SLACK_CLIENT_ID="+process.env.SLACK_CLIENT_ID);
 console.log("SLACK_VERIFICATION_TOKEN="+process.env.SLACK_VERIFICATION_TOKEN);
 console.log("SLACK_CLIENT_SECRET="+process.env.SLACK_CLIENT_SECRET);
 
-const dispatcher = require("./logic/plugindispacher");
+const dispatcher = require("./logic/plugin_dispatcher");
+console.log(dispatcher);
 
 // *** Initialize event adapter using verification token from environment variables ***
 const slackEvents = slackEventsApi.createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN, {
@@ -63,10 +65,10 @@ app.get('/auth/slack', passport.authenticate('slack', {
 app.get('/auth/slack/callback',
 passport.authenticate('slack', { session: false }),
 (req, res) => {
-	res.send('<p>Greet and React was successfully installed on your team.</p>');
+	res.send('<p>PolyBot was successfully installed on your team.</p>');
 },
 (err, req, res, next) => {
-	res.status(500).send(`<p>Greet and React failed to install</p> <pre>${err}</pre>`);
+	res.status(500).send(`<p>PolyBot failed to install</p> <pre>${err}</pre>`);
 }
 );
 
@@ -92,7 +94,7 @@ slackEvents.on('message', (message, body) => {
 	}
 	*/
     const slack = getClientByTeamId(body.team_id);
-
+    console.log(message);
 	if(!message.subtype && slack){
 		let result = dispatcher.dispatch(message.text);
 		if(result){
