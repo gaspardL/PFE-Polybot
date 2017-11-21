@@ -1,7 +1,7 @@
 {
   "name": "pfe-polybot-stressbot",
   "version": "1.0.0",
-  "description": "Slackbot utiliser pour effectuer des stress test au bot principal",
+  "description": "Slackbot utilisé pour effectuer des stress test au bot principal",
   "main": "app.js",
   "scripts": {
     "start" : "node app.js",
