@@ -15,10 +15,9 @@ var binding_help = {
     name : "help",
     patterns : [
         "help",
-        "help me",
         "aide",
-        "aide moi",
-        "à l'aide"
+        "commandes",
+        "commands"
     ],
     synonyms :{},
     tests :[
