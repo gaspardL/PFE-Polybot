@@ -1,13 +1,13 @@
-var plugin_bureaux = {
+var binding_bureaux = {
     name : "bureaux",
     description:"Indique la salle des membre de l'administration de polytech",
     patterns : [
-        "(où se trouve)? [salle] (de|du)? [titre]?{prof}",
-        "dans quelle [salle] se trouve [titre]?{prof}"
+        "(où se trouve)( )(la/le)( )[salle]( )(de/du)( )([titre])(./ ){prof}",
+        "(dans quelle)( )[salle]( )(se trouve)( )([titre])(./ ){prof}"
     ],
     synonyms :{
-        salle : ["(la )?salle","(le )?bureau"],
-        titre: ["M.","Mme.","Monsieur","Madame","Professeur","Prof"]
+        salle : ["salle","bureau"],
+        titre: ["Monsieur","Madame","Professeur","Prof"]
     },
     tests :[
         {
@@ -20,3 +20,4 @@ var plugin_bureaux = {
     }
 };
 
+module.exports.bindings = [binding_bureaux];

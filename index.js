@@ -15,6 +15,7 @@ console.log("SLACK_VERIFICATION_TOKEN="+process.env.SLACK_VERIFICATION_TOKEN);
 console.log("SLACK_CLIENT_SECRET="+process.env.SLACK_CLIENT_SECRET);
 
 const dispatcher = require("./logic/plugin_dispatcher");
+dispatcher.load_plugins();
 
 // *** Initialize event adapter using verification token from environment variables ***
 const slackEvents = slackEventsApi.createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN, {
