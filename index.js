@@ -94,11 +94,13 @@ slackEvents.on('message', (message, body) => {
 	}
 	*/
     const slack = getClientByTeamId(body.team_id);
-    console.log(message);
+	if (!slack) {
+		return console.error('No authorization found for this team. Did you install this app again after restarting?');
+	}
 	if(!message.subtype && slack){
 		let result = dispatcher.dispatch(message.text);
 		if(result){
-			slack.chat.postMessage(message.channel,result).catch(console.error)
+			slack.chat.postMessage(message.channel,result).catch(console.error);
 		}
 	}
 });

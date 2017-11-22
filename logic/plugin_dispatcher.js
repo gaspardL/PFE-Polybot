@@ -10,10 +10,9 @@ var plugin_help = {
     name : "help",
     patterns : [
         "help",
-        "help me",
         "aide",
-        "aide moi",
-        "à l'aide"
+        "commandes",
+        "commands"
     ],
     callback : help
 };

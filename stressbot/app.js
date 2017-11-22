@@ -11,17 +11,18 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	if (message.text === "charge") {
 		var channel = "D82METR8T"; //could also be a channel, group, DM, or user ID (C1234), or a username (@don)
 		for(var i =0; i < 60; i++){
-			rtm.sendMessage("hi", message.channel);
-			pause(1000);
+			rtm.sendMessage("help", message.channel);
+			console.log("help sent");
+			// pause(1000);
 		}
 	}
 });
-
-function pause(millis)
-{
-	var date = new Date();
-	var curDate = null;
-
-	do { curDate = new Date(); }
-	while(curDate-date < millis);
-}
+//
+// function pause(millis)
+// {
+// 	var date = new Date();
+// 	var curDate = null;
+//
+// 	do { curDate = new Date(); }
+// 	while(curDate-date < millis);
+// }
