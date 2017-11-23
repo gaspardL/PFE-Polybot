@@ -85,7 +85,7 @@ function match(message,binding){
 
 function dispatch(message){
 
-    message = message.toLowerCase();
+    message = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     for(let i in binding_list){
         let binding = binding_list[i];
         let result = match(message,binding);
