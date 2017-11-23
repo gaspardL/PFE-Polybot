@@ -1,3 +1,5 @@
+"use strict";
+
 require('dotenv').config();
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
