@@ -47,17 +47,17 @@ function match(message,binding){
         let expression = binding.expressions[i];
         let result = expression.match(message);
         let params = {};
-        console.log("match");
-        console.log(expression);
-        console.log(message);
-        console.log(binding.name);
-        console.log(result);
+        // console.log("match");
+        // console.log(expression);
+        // console.log(message);
+        // console.log(binding.name);
+        // console.log(result);
         if(result){
             for (let i in result){
                 let paramName = result[i]._parameterType._name;
                 params[paramName] = result[i].getValue(null);
             }
-            console.log(params);
+            // console.log(params);
             return params;
         }
     }
@@ -70,8 +70,8 @@ function dispatch(message){
     for(let i in binding_list){
         let binding = binding_list[i];
         let result = match(message,binding);
-        console.log("dispatch");
-        console.log(result);
+        // console.log("dispatch");
+        // console.log(result);
         if(result){
             return binding.callback(result);
         }
@@ -86,7 +86,7 @@ function load_binding(binding){
 }
 
 function load_plugin(file){
-    console.log("Loading plugin:",file);
+    // console.log("Loading plugin:",file);
     let plugin = require("./plugins/" + file);
     for(let i in plugin.bindings){
         load_binding(plugin.bindings[i])
