@@ -12,10 +12,10 @@ rtm.start();
 console.log("Server connected to slackbot ("+bot_token+")");
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    console.log("<=== "+message.user+" : "+ message.text);
+    // console.log("<=== "+message.user+" : "+ message.text);
 	let result = dispatcher.dispatch(message.text);
 	if(result){
 		rtm.sendMessage(result, message.channel);
-        console.log("===> ("+message.user+") : "+ result);
+        // console.log("===> ("+message.user+") : "+ result);
 	}
 });
