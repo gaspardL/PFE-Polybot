@@ -7,12 +7,31 @@ const compiler = require("./binding_compiler");
 
 var binding_list = {};
 
+function get_help(binding){
+    let help = "*"+binding.name+"*\n";
+    help += binding.description+"\n";
+    help += "_Patterns:_\n";
+    for (let i in binding.patterns){
+        help+=">"+binding.patterns[i]+"\n";
+    }
+    help += "_Exemples:_\n";
+    for (let i in binding.tests){
+        help += ">"+binding.tests[i].input+"\n";
+    }
+    return help;
+}
+
 function help(){
-    return "Help!";
+    let response = "Voici les différentes commandes disponibles:\n\n";
+    for (let i in binding_list){
+        response += get_help(binding_list[i]) + "\n";
+    }
+    return response;
 }
 
 var binding_help = {
     name : "help",
+    description : "Affiche les différentes commandes disponibles",
     patterns : [
         "help",
         "aide",
@@ -66,7 +85,7 @@ function match(message,binding){
 
 function dispatch(message){
 
-    message = message.toLowerCase();
+    message = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     for(let i in binding_list){
         let binding = binding_list[i];
         let result = match(message,binding);
