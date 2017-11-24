@@ -24,7 +24,7 @@ function send_message(){
 	}
 }
 
-setInterval(send_message,10);
+setInterval(send_message,265);
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     // console.log("<=== "+message.user+" : "+ message.text);
