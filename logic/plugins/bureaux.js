@@ -16,12 +16,13 @@ var binding_bureaux = {
     name : "bureaux",
     description:"Indique la salle des membre de l'administration de polytech",
     patterns : [
-        "(ou se trouve)( )(la/le)( )[salle]( )(de/du)( )([titre]) {prof}( )(?)",
-        "(dans quelle)( )[salle]( )(se trouve)( )([titre]) {prof}( )(?)"
+        "(ou se trouve)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
+        "(quelle/quel)( )(est)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
+        "(dans)( )(quelle/quel)( )[bureau]( )(se trouve)( )([monsieur]) {prof}( )(?)"
     ],
     synonyms :{
-        salle : ["salle","bureau"],
-        titre: ["M","Mme","Monsieur","Madame","Professeur","Prof"]
+        bureau : ["salle","bureau"],
+        monsieur: ["m","mme","monsieur","madame","professeur","prof"]
     },
     tests :[
         {
