@@ -18,7 +18,7 @@ for(var i in bot_tokens){
 }
 
 var NB_REQUEST = 150;
-var INTERVAL = 265;
+var INTERVAL = 300;
 
 var request_time = [];
 var mean_time = 0;
