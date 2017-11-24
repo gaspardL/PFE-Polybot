@@ -18,8 +18,8 @@ var messages = [];
 function send_message(){
 	if(messages.length >= 1){
 		let request = messages[0];
-        rtm.sendMessage(request.message, request.channel);
-		messages.shift();
+		console.log("Send: "+request.message);
+        messages.shift();
 	}
 }
 
