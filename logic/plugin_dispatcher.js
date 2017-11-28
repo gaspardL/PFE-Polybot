@@ -97,9 +97,10 @@ function load_binding(binding,binding_list){
 }
 
 // Teste un plugin
-function test_plugin(plugin){
+function test_plugin(plugin_to_test){
     let errors = [];
     let binding_test_list = deepcopy(binding_list);
+    let plugin = deepcopy(plugin_to_test);
     for(let i in binding_test_list){
         load_binding(binding_test_list[i],binding_test_list);
     }
