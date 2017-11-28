@@ -211,21 +211,17 @@ function ajout_plugin(params, message){
     if(message.subtype != "file_share"){
         return "Veuillez uploader les sources de votre plugin et écrire cette commande en commentaire";
     }
-    var pluginname = (params.name != "")? params.name : message.file.name;
-    var index = pluginname.lastIndexOf('.js');
-    if(index != -1){
-        pluginname = pluginname.substr(0, index);
-    }
-    download(message.file.url_private_download, path.join(__dirname, "plugins", pluginname+".js"), (err) => {
+
+    download(message.file.url_private_download, path.join(__dirname, "plugins", message.file.name), (err) => {
         if (err) {
             console.error(err);
             return;
         }
 
-        load_plugin_file(pluginname);
+        load_plugin_file(message.file.name);
     });
 
-    return "Plugin "+pluginname+" ajouté sur polybot";
+    return "Nouveau plugin ajouté sur polybot";
 }
 
 function download(url, dest, cb) {

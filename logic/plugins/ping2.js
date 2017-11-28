@@ -1,0 +1,19 @@
+var ping2 = {
+    name : "ping2",
+    description:"Simple ping/pong permettant des mesures de temps de réponse",
+    patterns : [
+        "ping2 {message}",
+    ],
+    synonyms :{},
+    tests :[
+        {
+            input: "ping2 5",
+            result: {message:"5"}
+        }
+    ],
+    callback : function(params, message){
+        return "pong2 "+params.message;
+    }
+};
+
+module.exports.bindings = [ping2];
