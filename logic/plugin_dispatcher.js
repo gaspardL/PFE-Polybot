@@ -38,13 +38,13 @@ function match(message,binding){
     return false;
 }
 
-function dispatch(message,bindings){
+function dispatch(text,message,bindings){
     if(!bindings) bindings = binding_list;
-    let messagetext = message.text.toLowerCase() // met en minuscule
+    text = text.toLowerCase() // met en minuscule
         .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
     for(let i in bindings){
         let binding = bindings[i];
-        let params = match(messagetext,binding);
+        let params = match(text,binding);
         if(params){
             return binding.callback(params, message);
         }
@@ -80,7 +80,7 @@ function test_plugin(plugin_to_test){
         let binding = binding_test_list[i];
         for (let j in binding.tests){
             let test = binding.tests[j];
-            let result = dispatch(test.input,binding_test_list);
+            let result = dispatch(test.input,null,binding_test_list);
             if(result.name !== binding.name){
                 errors.push("La phrase "+test.input+" de la commande "+binding.name+" active la commande "+result.name);
                 continue;
@@ -191,7 +191,7 @@ var plugin_ajout_plugin = {
         name : "ajout plugin",
         description : "Permet d'ajouter des plugins",
         patterns : [
-            "([ajouter])( )(le)( )(l')[plugin] {name}",
+            "([ajouter])( )(le)( )(l')[plugin]",
         ],
         synonyms :{
             ajouter: ["ajoute", "ajouter", "add"],

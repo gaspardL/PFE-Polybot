@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 
 require('dotenv').config();
 var RtmClient = require('@slack/client').RtmClient;
@@ -41,12 +41,12 @@ function send_message(){
 }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-	// console.log(message);
-	if(message.subtype == "file_share" && message.file.comments_count > 0){
-		message.text = message.file.initial_comment.comment;
+	let text = message.text;
+	if(message.subtype === "file_share" && message.file.comments_count > 0){
+		text = message.file.initial_comment.comment;
 	}
 
-	let result = dispatcher.dispatch(message);
+	let result = dispatcher.dispatch(text,message);
 	if(result){
 		messages.push({message:result,channel:message.channel});
 	}
