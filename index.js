@@ -75,7 +75,33 @@ passport.authenticate('slack', { session: false }),
 // *** Plug the event adapter into the express app as middleware ***
 app.use('/slack/events', slackEvents.expressMiddleware());
 
-// *** Attach listeners to the event adapter ***
+var messages = [];
+
+var message_sending_timeout = null;
+
+function start_sending_messages(){
+    if(!message_sending_timeout)
+        message_sending_timeout = setInterval(send_message,100);
+}
+start_sending_messages();
+
+function send_message(){
+	if(messages.length >= 1){
+		let request = messages.shift();
+		console.log("Send: "+request.message);
+		request.slack.chat.postMessage(request.channel, request.message).catch(console.error);
+        /*rtm.sendMessage(request.message, request.channel,function(error,m){
+            if(error){
+                console.log("Error:");
+                console.log(error);
+                clearInterval(message_sending_timeout);
+                message_sending_timeout = null;
+                messages.unshift(request);
+                setTimeout(start_sending_messages,1000)
+            }
+		});*/
+	}
+}
 
 // *** Greeting any user that says "hi" ***
 slackEvents.on('message', (message, body) => {
@@ -97,11 +123,9 @@ slackEvents.on('message', (message, body) => {
 	if (!slack) {
 		return console.error('No authorization found for this team. Did you install this app again after restarting?');
 	}
-	if(!message.subtype && slack){
-		let result = dispatcher.dispatch(message.text);
-		if(result){
-			slack.chat.postMessage(message.channel,result).catch(console.error);
-		}
+	let result = dispatcher.dispatch(message.text);
+	if(result){
+		messages.push({message:result,channel:message.channel, slack:slack});
 	}
 });
 

@@ -4,10 +4,10 @@
   "description": "Bot modulable pour Slack",
   "main": "index.js",
   "scripts": {
-		"start": "node rtm.js",
+    "start": "node rtm.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-	"repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
   },
@@ -28,9 +28,10 @@
     "@slack/client": "^3.8.1",
     "@slack/events-api": "^1.0.0",
     "body-parser": "^1.16.1",
+    "cucumber-expressions": "^5.0.3",
     "dotenv": "^4.0.0",
     "express": "^4.14.1",
     "passport": "^0.3.2",
-    "cucumber-expressions": "^5.0.3"
+    "request": "^2.83.0"
   }
 }

@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 
 require('dotenv').config();
 var RtmClient = require('@slack/client').RtmClient;
@@ -27,7 +27,6 @@ start_sending_messages();
 function send_message(){
 	if(messages.length >= 1){
 		let request = messages.shift();
-		console.log("Send: "+request.message);
         rtm.sendMessage(request.message, request.channel,function(error,m){
             if(error){
                 console.log("Error:");
@@ -35,18 +34,20 @@ function send_message(){
                 clearInterval(message_sending_timeout);
                 message_sending_timeout = null;
                 messages.unshift(request);
-                setTimeout(start_sending_messages,1000)
+                setTimeout(start_sending_messages,1000);
             }
 		});
 	}
 }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    // console.log("<=== "+message.user+" : "+ message.text);
-	let result = dispatcher.dispatch(message.text);
+	// console.log(message);
+	if(message.subtype == "file_share" && message.file.comments_count > 0){
+		message.text = message.file.initial_comment.comment;
+	}
+
+	let result = dispatcher.dispatch(message);
 	if(result){
 		messages.push({message:result,channel:message.channel});
-		// rtm.sendMessage(result, message.channel);
-        // console.log("===> ("+message.user+") : "+ result);
 	}
 });

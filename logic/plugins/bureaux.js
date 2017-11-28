@@ -30,12 +30,12 @@ var binding_bureaux = {
             result: {prof:"papazian"}
         }
     ],
-    callback : function(params){
+    callback : function(params, message){
         let noms = params.prof.split(" ");
         for (let i in noms){
             let bureau = bureaux[noms[i]];
             if(bureau){
-                return "Le bureau de "+bureau.nom+" est en "+bureau.bureau
+                return "Le bureau de "+bureau.nom+" est en "+bureau.bureau;
             }
         }
         return "Je n'ai pas trouvé de membre de Polytech' répondant au nom de \""+params.prof+"\"";
