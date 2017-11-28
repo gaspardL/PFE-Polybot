@@ -101,6 +101,12 @@ function test_plugin(plugin_to_test){
     let errors = [];
     let binding_test_list = deepcopy(binding_list);
     let plugin = deepcopy(plugin_to_test);
+    for(let i in plugin.bindings){
+        let binding_name = plugin.bindings[i].name;
+        if(binding_test_list[binding_name]){
+            errors.push("La commande "+binding_name+" existe déjà")
+        }
+    }
     for(let i in binding_test_list){
         load_binding(binding_test_list[i],binding_test_list);
     }
@@ -119,11 +125,11 @@ function test_plugin(plugin_to_test){
             let test = binding.tests[j];
             let result = dispatch(test.input,binding_test_list);
             if(result.name !== binding.name){
-                errors.push("La phrase "+test.input+" de la commande "+binding.name+" active la commande "+result.name);
+                errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" active la commande \""+result.name+"\"");
                 continue;
             }
             if(!deepequals(result.params,test.result)){
-                errors.push("La phrase "+test.input+" de la commande "+binding.name+" resulte en des paramètres inattendus:\n"+
+                errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" resulte en des paramètres inattendus:\n"+
                     JSON.stringify(result.params,null,'\t')+"\n"+
                     "au lieu de:\n"+
                     JSON.stringify(test.result,null,'\t'))
@@ -141,24 +147,25 @@ function load_plugin(plugin){
         console.log("Tests failed");
         for (let i in errors){
             console.log("Erreurs lors du chargement du plugin");
-            console.log(errors[i]);
+            console.log(" - "+errors[i]);
         }
         return false;
     }else{
+        console.log("Tests passed");
+        console.log("Loading plugin \""+plugin.name+"\"");
         for(let i in plugin.bindings){
             load_binding(plugin.bindings[i],binding_list)
         }
-        console.log("Tests passed");
+        console.log("Plugin \""+plugin.name+"\" loaded");
         return true;
     }
 }
 
 // Charge un plugin du dossier ./plugins
 function load_plugin_file(file){
-    console.log("Loading plugin:",file);
     let plugin = require("./plugins/" + file);
     load_plugin(plugin);
-    console.log("Plugin:",file, "loaded");
+
 }
 
 // Charge les plugins se trouvant dans le dossier ./plugins

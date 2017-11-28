@@ -42,7 +42,9 @@ function send_message(){
 }
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+    console.log(" --- Message received:");
     console.log(message);
+    console.log(" --- ");
     // console.log("<=== "+message.user+" : "+ message.text);
 	let result = dispatcher.dispatch(message.text);
 	if(result){
