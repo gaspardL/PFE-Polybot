@@ -40,12 +40,12 @@ function match(message,binding){
 
 function dispatch(message,bindings){
     if(!bindings) bindings = binding_list;
-    messagetext = message.text.toLowerCase() // met en minuscule
+    let messagetext = message.text.toLowerCase() // met en minuscule
         .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
     for(let i in bindings){
         let binding = bindings[i];
         let params = match(messagetext,binding);
-        if(result){
+        if(params){
             return binding.callback(params, message);
         }
     }
@@ -126,8 +126,8 @@ function load_plugin_file(file){
 
 // Charge les plugins se trouvant dans le dossier ./plugins
 function load_plugins(){
-    load_binding(plugin_help);
-    load_binding(binding_ajout_plugin);
+    load_plugin(plugin_help);
+    load_plugin(plugin_ajout_plugin);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
         load_plugin_file(file);
@@ -185,23 +185,26 @@ var plugin_help = {
     }]
 };
 
-var binding_ajout_plugin = {
+var plugin_ajout_plugin = {
     name : "ajout plugin",
-    description : "Permet d'ajouter des plugins",
-    patterns : [
-        "([ajouter])( )(le)( )(l')[plugin] {name}",
-    ],
-    synonyms :{
-        ajouter: ["ajoute", "ajouter", "add"],
-        plugin: ["plugin", "extension"]
-    },
-    tests :[
-        {
-            input: "ajoute plugin",
-            result: {}
-        }
-    ],
-    callback : ajout_plugin
+    bindings : [{
+        name : "ajout plugin",
+        description : "Permet d'ajouter des plugins",
+        patterns : [
+            "([ajouter])( )(le)( )(l')[plugin] {name}",
+        ],
+        synonyms :{
+            ajouter: ["ajoute", "ajouter", "add"],
+            plugin: ["plugin", "extension"]
+        },
+        tests :[
+            {
+                input: "ajoute plugin",
+                result: {}
+            }
+        ],
+        callback : ajout_plugin
+    }]
 };
 
 function ajout_plugin(params, message){
