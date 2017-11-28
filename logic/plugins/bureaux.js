@@ -43,3 +43,4 @@ var binding_bureaux = {
 };
 
 module.exports.bindings = [binding_bureaux];
+module.exports.name = "bureaux";

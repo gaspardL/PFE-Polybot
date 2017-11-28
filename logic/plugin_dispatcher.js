@@ -1,5 +1,13 @@
 "use strict";
 
+function deepcopy(object){
+    return JSON.parse(JSON.stringify(object));
+}
+
+function deepequals(obj1,obj2){
+    return JSON.stringify(obj1) === JSON.stringify(obj2);
+}
+
 require('dotenv').config();
 const path = require("path");
 const fs = require("fs");
@@ -7,54 +15,37 @@ const request = require('request');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 
+
+
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
 var binding_list = {};
 
 function match(message,binding){
-    /*
-    for (let i in plugin.patterns){
-        let pattern = plugin.patterns[i];
-        let length = pattern.length;
-        let maxDistance = length/4 + 1;
-        let distance = levenshtein(message,pattern);
-        console.log("Matching",message,pattern,distance);
-        if(distance <= maxDistance){
-            return true;
-        }
-    }
-    */
     for(let i in binding.expressions){
         let expression = binding.expressions[i];
         // console.log(expression);
         let result = expression.match(message);
         let params = {};
-        // console.log("match");
-        // console.log(expression);
-        // console.log(message);
-        // console.log(binding.name);
-        // console.log(result);
         if(result){
             for (let i in result){
                 let paramName = result[i]._parameterType._name;
                 params[paramName] = result[i].getValue(null);
             }
-            // console.log(params);
             return params;
         }
     }
     return false;
 }
 
-function dispatch(message){
-
-    var messagetext = message.text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-    for(let i in binding_list){
-        let binding = binding_list[i];
+function dispatch(message,bindings){
+    if(!bindings) bindings = binding_list;
+    messagetext = message.text.toLowerCase() // met en minuscule
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
+    for(let i in bindings){
+        let binding = bindings[i];
         let params = match(messagetext,binding);
-        // console.log("dispatch");
-        // console.log(result);
-        if(params){
+        if(result){
             return binding.callback(params, message);
         }
     }
@@ -62,25 +53,84 @@ function dispatch(message){
     return false;
 }
 
-function load_binding(binding){
+// Charge un binding
+function load_binding(binding,binding_list){
     compiler.compile(binding);
     binding_list[binding.name] = binding;
 }
 
-function load_plugin(file){
-    let plugin = require("./plugins/" + file);
-    for(let i in plugin.bindings){
-        load_binding(plugin.bindings[i])
+// Teste un plugin
+function test_plugin(plugin_to_test){
+    let errors = [];
+    let binding_test_list = deepcopy(binding_list);
+    let plugin = deepcopy(plugin_to_test);
+    for(let i in binding_test_list){
+        load_binding(binding_test_list[i],binding_test_list);
     }
+    for(let i in plugin.bindings){
+        load_binding(plugin.bindings[i],binding_test_list);
+    }
+    for(let i in binding_test_list){
+        let binding = binding_test_list[i];
+        binding.callback = function(params){
+            return {name: binding.name, params: params};
+        }
+    }
+    for(let i in binding_test_list){
+        let binding = binding_test_list[i];
+        for (let j in binding.tests){
+            let test = binding.tests[j];
+            let result = dispatch(test.input,binding_test_list);
+            if(result.name !== binding.name){
+                errors.push("La phrase "+test.input+" de la commande "+binding.name+" active la commande "+result.name);
+                continue;
+            }
+            if(!deepequals(result.params,test.result)){
+                errors.push("La phrase "+test.input+" de la commande "+binding.name+" resulte en des paramètres inattendus:\n"+
+                    JSON.stringify(result.params,null,'\t')+"\n"+
+                    "au lieu de:\n"+
+                    JSON.stringify(test.result,null,'\t'))
+            }
+        }
+    }
+    return errors;
+}
+
+// Teste et charge un plugin
+function load_plugin(plugin){
+    console.log("Testing "+plugin.name);
+    let errors = test_plugin(plugin);
+    if(errors.length > 0){
+        console.log("Tests failed");
+        for (let i in errors){
+            console.log("Erreurs lors du chargement du plugin");
+            console.log(errors[i]);
+        }
+        return false;
+    }else{
+        for(let i in plugin.bindings){
+            load_binding(plugin.bindings[i],binding_list)
+        }
+        console.log("Tests passed");
+        return true;
+    }
+}
+
+// Charge un plugin du dossier ./plugins
+function load_plugin_file(file){
+    console.log("Loading plugin:",file);
+    let plugin = require("./plugins/" + file);
+    load_plugin(plugin);
     console.log("Plugin:",file, "loaded");
 }
 
+// Charge les plugins se trouvant dans le dossier ./plugins
 function load_plugins(){
-    load_binding(binding_help);
+    load_binding(plugin_help);
     load_binding(binding_ajout_plugin);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
-        load_plugin(file);
+        load_plugin_file(file);
     });
 }
 
@@ -113,23 +163,26 @@ function help(){
     return response;
 }
 
-var binding_help = {
-    name : "help",
-    description : "Affiche les différentes commandes disponibles",
-    patterns : [
-        "help",
-        "aide",
-        "commandes",
-        "commands"
-    ],
-    synonyms :{},
-    tests :[
-        {
-            input: "help",
-            result: {}
-        }
-    ],
-    callback : help
+var plugin_help = {
+    name: "help",
+    bindings : [{
+        name : "help",
+        description : "Affiche les différentes commandes disponibles",
+        patterns : [
+            "help",
+            "aide",
+            "commandes",
+            "commands"
+        ],
+        synonyms :{},
+        tests :[
+            {
+                input: "help",
+                result: {}
+            }
+        ],
+        callback : help
+    }]
 };
 
 var binding_ajout_plugin = {
@@ -166,7 +219,7 @@ function ajout_plugin(params, message){
             return;
         }
 
-        load_plugin(pluginname);
+        load_plugin_file(pluginname);
     });
 
     return "Plugin "+pluginname+" ajouté sur polybot";

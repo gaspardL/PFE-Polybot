@@ -8,6 +8,7 @@ const ParameterTypeRegistry = cucumber.ParameterTypeRegistry;
 const ParameterType = cucumber.ParameterType;
 
 function compile(binding){
+
     //On transforme les synonymes en leur équivalent en regex
     let synonyms = {};
     for (let i in binding.synonyms){
