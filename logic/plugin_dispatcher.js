@@ -14,7 +14,7 @@ const fs = require("fs");
 const request = require('request');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
-
+const rights = require("./user_rights");
 
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
@@ -38,12 +38,17 @@ function match(message,binding){
     return false;
 }
 
-function dispatch(text,bindings){
+function dispatch(text,user,bindings){
     if(!bindings) bindings = binding_list;
     text = text.toLowerCase() // met en minuscule
         .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
     for(let i in bindings){
         let binding = bindings[i];
+        if(binding.restricted){
+            if(!rights.has_rights(user,binding.name)){
+                continue;
+            }
+        }
         let params = match(text,binding);
         if(params){
             return {params:params, binding:binding};
@@ -76,11 +81,12 @@ function test_plugin(plugin_to_test){
     for(let i in plugin.bindings){
         load_binding(plugin.bindings[i],binding_test_list);
     }
+    let test_user = {id: "test",is_admin: true, is_owner: true, is_primary_owner: true};
     for(let i in binding_test_list){
         let binding = binding_test_list[i];
         for (let j in binding.tests){
             let test = binding.tests[j];
-            let result = dispatch(test.input,binding_test_list);
+            let result = dispatch(test.input,test_user,binding_test_list);
             if(result.binding.name !== binding.name){
                 errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" active la commande \""+result.binding.name+"\"");
                 continue;
@@ -135,8 +141,6 @@ function load_plugins(){
     });
 }
 
-module.exports.dispatch = dispatch;
-module.exports.load_plugins = load_plugins;
 
 /*
  * PLUGINS MAITRES
@@ -190,6 +194,7 @@ var plugin_ajout_plugin = {
     name : "ajout plugin",
     bindings : [{
         name : "ajout plugin drag&drop",
+        restricted: true,
         description : "Permet d'ajouter un plugin en uploadant directement un fichier sur slack. Commande à écrire dans le commentaire du fichier",
         patterns : [
             "([ajouter])( )(le)( )(l')[plugin]",
@@ -209,6 +214,7 @@ var plugin_ajout_plugin = {
     {
         name : "ajout plugin lien git",
         description : "Permet d'ajouter des plugins en fournissant un lien de repository git",
+        restricted: true,
         patterns : [
             "([ajouter])( )(le)( )(l')[plugin] {giturl}",
         ],
@@ -295,3 +301,11 @@ function download(url, dest, cb) {
 function ajout_plugin_git(params, message){
     console.log(params.giturl);
 }
+
+function init(web){
+    rights.init(web);
+    load_plugins();
+}
+
+module.exports.dispatch = dispatch;
+module.exports.init = init;

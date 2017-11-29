@@ -12,7 +12,7 @@ const dispatcher = require("./logic/plugin_dispatcher");
 // .then(() => dispatcher.load_plugins())
 // .catch((err) => console.error('failed: ', err));
 
-dispatcher.load_plugins();
+
 
 var token = process.env.SLACK_API_TOKEN || '';
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
@@ -21,6 +21,8 @@ var web = new WebClient(token);
 var rtm = new RtmClient(bot_token);
 rtm.start();
 console.log("Server connected to slackbot ("+bot_token+")");
+
+dispatcher.init(web);
 
 var messages = [];
 
@@ -49,6 +51,17 @@ function send_message(){
 	}
 }
 
+function get_user_info(user_id,callback){
+    web.users.info(user_id,function(err,res){
+        if(err){
+            console.log("Error in get_user_info:");
+            console.log(err);
+        }else{
+            callback(res.user);
+        }
+    });
+}
+
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	let text = message.text;
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
@@ -58,13 +71,18 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 		text = message.message.text;
 	}
 
+	console.log(message);
+
     function reply(result){
         if(result){
             messages.push({message:result,channel:message.channel});
         }
     }
 
-	let match = dispatcher.dispatch(text);
-	match.binding.callback(reply,match.params,message,web);
+    get_user_info(message.user,function(user){
+        let match = dispatcher.dispatch(text,user);
+        match.binding.callback(reply,match.params,message,web);
+    });
+
 
 });
