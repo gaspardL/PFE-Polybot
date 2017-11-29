@@ -51,6 +51,9 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
 		text = message.file.initial_comment.comment;
 	}
+	if(message.subtype === "message_changed"){
+		text = message.message.text;
+	}
 
 	let result = dispatcher.dispatch(text,message);
 	if(result){

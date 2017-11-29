@@ -104,18 +104,18 @@ function test_plugin(plugin_to_test){
 
 // Teste et charge un plugin
 function load_plugin(plugin){
-    console.log("Testing "+plugin.name);
+    // console.log("Testing "+plugin.name);
     let errors = test_plugin(plugin);
     if(errors.length > 0){
-        console.log("Tests failed");
+        // console.log("Tests failed");
         for (let i in errors){
-            console.log("Erreurs lors du chargement du plugin");
+            console.log("Erreurs lors du chargement du plugin "+plugin.name);
             console.log(" - "+errors[i]);
         }
         return false;
     }else{
-        console.log("Tests passed");
-        console.log("Loading plugin \""+plugin.name+"\"");
+        // console.log("Tests passed");
+        // console.log("Loading plugin \""+plugin.name+"\"");
         for(let i in plugin.bindings){
             load_binding(plugin.bindings[i],binding_list)
         }
@@ -195,8 +195,8 @@ var plugin_help = {
 var plugin_ajout_plugin = {
     name : "ajout plugin",
     bindings : [{
-        name : "ajout plugin",
-        description : "Permet d'ajouter des plugins",
+        name : "ajout plugin drag&drop",
+        description : "Permet d'ajouter un plugin en uploadant directement un fichier sur slack. Commande à écrire dans le commentaire du fichier",
         patterns : [
             "([ajouter])( )(le)( )(l')[plugin]",
         ],
@@ -210,11 +210,29 @@ var plugin_ajout_plugin = {
                 result: {}
             }
         ],
-        callback : ajout_plugin
+        callback : ajout_plugin_dnd
+    },
+    {
+        name : "ajout plugin lien git",
+        description : "Permet d'ajouter des plugins en fournissant un lien de repository git",
+        patterns : [
+            "([ajouter])( )(le)( )(l')[plugin] {giturl}",
+        ],
+        synonyms :{
+            ajouter: ["ajoute", "ajouter", "add"],
+            plugin: ["plugin", "extension"]
+        },
+        tests :[
+            {
+                input: "ajoute plugin https://giturl.git",
+                result: {giturl: "https://giturl.git"}
+            }
+        ],
+        callback : ajout_plugin_git
     }]
 };
 
-function ajout_plugin(params, message){
+function ajout_plugin_dnd(params, message){
     if(message.subtype != "file_share"){
         return "Veuillez uploader les sources de votre plugin et écrire cette commande en commentaire";
     }
@@ -277,4 +295,8 @@ function download(url, dest, cb) {
         fs.unlink(dest);
         cb(err.message);
     });
+}
+
+function ajout_plugin_git(params, message){
+    console.log(params.giturl);
 }
