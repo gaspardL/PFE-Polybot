@@ -1,14 +1,17 @@
 "use strict";
 
 require('dotenv').config();
+var WebClient = require('@slack/client').WebClient;
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const dispatcher = require("./logic/plugin_dispatcher");
 
 dispatcher.load_plugins();
 
+var token = process.env.SLACK_API_TOKEN || '';
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
+var web = new WebClient(token);
 var rtm = new RtmClient(bot_token);
 rtm.start();
 console.log("Server connected to slackbot ("+bot_token+")");
@@ -46,8 +49,13 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 		text = message.file.initial_comment.comment;
 	}
 
-	let result = dispatcher.dispatch(text,message);
-	if(result){
-		messages.push({message:result,channel:message.channel});
-	}
+    function reply(result){
+        if(result){
+            messages.push({message:result,channel:message.channel});
+        }
+    }
+
+	let match = dispatcher.dispatch(text);
+	match.binding.callback(reply,match.params,message,web);
+
 });

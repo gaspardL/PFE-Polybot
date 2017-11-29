@@ -11,8 +11,8 @@ var ping = {
             result: {message:"5"}
         }
     ],
-    callback : function(params, message){
-        return "pong "+params.message;
+    callback : function(reply,params, message){
+        reply("pong "+params.message);
     }
 };
 

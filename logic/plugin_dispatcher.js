@@ -38,7 +38,7 @@ function match(message,binding){
     return false;
 }
 
-function dispatch(text,message,bindings){
+function dispatch(text,bindings){
     if(!bindings) bindings = binding_list;
     text = text.toLowerCase() // met en minuscule
         .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
@@ -46,7 +46,7 @@ function dispatch(text,message,bindings){
         let binding = bindings[i];
         let params = match(text,binding);
         if(params){
-            return binding.callback(params, message);
+            return {params:params, binding:binding};
         }
     }
 
@@ -78,17 +78,11 @@ function test_plugin(plugin_to_test){
     }
     for(let i in binding_test_list){
         let binding = binding_test_list[i];
-        binding.callback = function(params){
-            return {name: binding.name, params: params};
-        }
-    }
-    for(let i in binding_test_list){
-        let binding = binding_test_list[i];
         for (let j in binding.tests){
             let test = binding.tests[j];
-            let result = dispatch(test.input,null,binding_test_list);
-            if(result.name !== binding.name){
-                errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" active la commande \""+result.name+"\"");
+            let result = dispatch(test.input,binding_test_list);
+            if(result.binding.name !== binding.name){
+                errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" active la commande \""+result.binding.name+"\"");
                 continue;
             }
             if(!deepequals(result.params,test.result)){
@@ -162,12 +156,12 @@ function get_help(binding){
     return help;
 }
 
-function help(){
+function help(reply){
     let response = "Voici les différentes commandes disponibles:\n\n";
     for (let i in binding_list){
         response += get_help(binding_list[i]) + "\n";
     }
-    return response;
+    reply(response);
 }
 
 var plugin_help = {
@@ -214,21 +208,22 @@ var plugin_ajout_plugin = {
     }]
 };
 
-function ajout_plugin(params, message){
-    if(message.subtype != "file_share"){
-        return "Veuillez uploader les sources de votre plugin et écrire cette commande en commentaire";
+function ajout_plugin(reply,params, message){
+    if(message.subtype !== "file_share"){
+        reply("Veuillez uploader les sources de votre plugin et écrire cette commande en commentaire");
+        return;
     }
 
     download(message.file.url_private_download, path.join(__dirname, "plugins", message.file.name), (err) => {
         if (err) {
             console.error(err);
+            reply("Errueur pendant le chargement du plugin: "+err);
             return;
         }
 
         load_plugin_file(message.file.name);
+        reply("Nouveau plugin ajouté sur polybot");
     });
-
-    return "Nouveau plugin ajouté sur polybot";
 }
 
 function download(url, dest, cb) {

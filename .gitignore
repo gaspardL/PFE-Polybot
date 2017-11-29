@@ -67,3 +67,5 @@ local_*
 # End of https://www.gitignore.io/api/node
 
 .idea/
+
+logic/plugins/ping2.js

@@ -12,6 +12,17 @@ var bureaux = {
 
 };
 
+function find_bureau(nom){
+    let noms = nom.split(" ");
+    for (let i in noms){
+        let bureau = bureaux[noms[i]];
+        if(bureau){
+            return bureau;
+        }
+    }
+    return false;
+}
+
 var binding_bureaux = {
     name : "bureaux",
     description:"Indique la salle des membre de l'administration de polytech",
@@ -30,17 +41,49 @@ var binding_bureaux = {
             result: {prof:"papazian"}
         }
     ],
-    callback : function(params, message){
-        let noms = params.prof.split(" ");
-        for (let i in noms){
-            let bureau = bureaux[noms[i]];
-            if(bureau){
-                return "Le bureau de "+bureau.nom+" est en "+bureau.bureau;
-            }
+    callback : function(reply,params){
+        let bureau = find_bureau(params.prof);
+        if(bureau){
+            reply("Le bureau de "+bureau.nom+" est en "+bureau.bureau);
+        }else{
+            reply("Je n'ai pas trouvé de bureaux attribué à \""+params.prof+"\"");
         }
-        return "Je n'ai pas trouvé de membre de Polytech' répondant au nom de \""+params.prof+"\"";
     }
 };
 
-module.exports.bindings = [binding_bureaux];
+var binding_mon_bureaux = {
+    name : "mon_bureau",
+    description:"Indique le bureau de l'utilisateur",
+    patterns : [
+        "(ou se trouve)( )mon/ma( )[bureau]( )(?)",
+        "(quelle/quel)( )(est)( )mon/ma( )[bureau]( )(?)",
+    ],
+    synonyms :{
+        bureau : ["salle","bureau"],
+    },
+    tests :[
+        {
+            input: "Où se trouve mon bureau",
+            result: {}
+        }
+    ],
+    callback : function(reply,params, message,webapi){
+        webapi.users.info(message.user,function(err,res){
+            if(err){
+                reply("Erreur: "+err);
+            }else{
+                let nom = res.user.profile.real_name;
+                let bureau = find_bureau(nom);
+                if(bureau){
+                    reply("Votre bureau est en "+bureau.bureau);
+                }
+                else{
+                    reply("Je n'ai pas trouvé de bureaux attribué à \""+nom+"\"");
+                }
+            }
+        })
+    }
+};
+
+module.exports.bindings = [binding_bureaux,binding_mon_bureaux];
 module.exports.name = "bureaux";

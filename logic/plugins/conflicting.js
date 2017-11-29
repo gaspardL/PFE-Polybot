@@ -11,8 +11,8 @@ var binding_conflicting = {
             result: {prof:"ppapazian"}
         }
     ],
-    callback : function(params){
-        return params.prof;
+    callback : function(send,params){
+        reply(params.prof);
     }
 };
 
