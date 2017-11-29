@@ -1,11 +1,16 @@
 "use strict";
 
 require('dotenv').config();
+const git = require('simple-git/promise');
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const dispatcher = require("./logic/plugin_dispatcher");
 
-dispatcher.load_plugins();
+
+git().clone("https://github.com/gaspardL/Polybot-Test-Plugin.git", "./logic/plugins/tmp")
+.then(() => dispatcher.load_plugins())
+.catch((err) => console.error('failed: ', err));
+
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
