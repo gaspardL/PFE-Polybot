@@ -57,7 +57,7 @@ function compile(binding){
             String,             // type
             s => s, 			// transformer
             false,             // useForSnippets
-            true               // preferForRegexpMatch
+            false               // preferForRegexpMatch
         ))
     }
 

@@ -40,7 +40,7 @@ function send_message(){
 		let request = messages.shift();
         rtm.sendMessage(request.message, request.channel,function(error,m){
             if(error){
-                console.log("Error:");
+                console.log("Error in send_message:");
                 console.log(error);
                 clearInterval(message_sending_timeout);
                 message_sending_timeout = null;
@@ -69,9 +69,10 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	}
 	if(message.subtype === "message_changed"){
 		text = message.message.text;
+		message.user = message.message.user;
 	}
 
-	console.log(message);
+	//console.log(message);
 
     function reply(result){
         if(result){
@@ -81,8 +82,12 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 
     get_user_info(message.user,function(user){
         let match = dispatcher.dispatch(text,user);
-        match.binding.callback(reply,match.params,message,web);
+        if(match){
+            match.binding.callback(reply,match.params,message,web);
+        }
+        else{
+            reply("Je n'ai pas compris votre commande. Pour savoir ce que je peux faire, dites \"help\".");
+        }
     });
-
 
 });
