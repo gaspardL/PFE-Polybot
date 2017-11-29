@@ -1,10 +1,16 @@
 "use strict";
 
 require('dotenv').config();
+const git = require('simple-git/promise');
 var WebClient = require('@slack/client').WebClient;
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const dispatcher = require("./logic/plugin_dispatcher");
+
+
+// git().clone("https://github.com/gaspardL/Polybot-Test-Plugin.git", "./logic/plugins/tmp")
+// .then(() => dispatcher.load_plugins())
+// .catch((err) => console.error('failed: ', err));
 
 dispatcher.load_plugins();
 
@@ -47,6 +53,9 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	let text = message.text;
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
 		text = message.file.initial_comment.comment;
+	}
+	if(message.subtype === "message_changed"){
+		text = message.message.text;
 	}
 
     function reply(result){
