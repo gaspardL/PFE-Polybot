@@ -117,7 +117,7 @@ function load_plugin(plugin){
             console.log("Erreurs lors du chargement du plugin "+plugin.name);
             console.log(" - "+errors[i]);
         }
-        return false;
+        return errors;
     }else{
         // console.log("Tests passed");
         // console.log("Loading plugin \""+plugin.name+"\"");
@@ -125,7 +125,7 @@ function load_plugin(plugin){
             load_binding(plugin.bindings[i],binding_list)
         }
         console.log("Plugin \""+plugin.name+"\" loaded");
-        return true;
+        return false;
     }
 }
 
@@ -247,14 +247,19 @@ function ajout_plugin_dnd(reply,params, message){
     download(message.file.url_private_download, path.join(__dirname, "plugins", message.file.name), (err) => {
         if (err) {
             console.error(err);
-            reply("Errueur pendant le chargement du plugin: "+err);
+            reply("Erreur pendant le chargement du plugin: "+err);
             return;
         }
 
-		if(load_plugin_file(message.file.name)){
+        let errors = load_plugin_file(message.file.name);
+		if(!errors){
 			reply("Nouveau plugin ajouté sur polybot");
 		} else {
-			reply("Impossible d'ajouter le plugin. Celui-ci entre en conflit avec un autre plugin");
+            let response = "Problème lors de l'ajout du plugin";
+            for(let i in errors){
+                response = response + " - " + errors[i] + "\n";
+            }
+            reply(response);
 		}
     });
 }
@@ -312,10 +317,15 @@ function ajout_plugin_git(reply, params){
 	var pluginFolder = "gplugin"+ new Date().getTime();
 	git().clone(url, path.join(__dirname, "plugins", pluginFolder))
 	.then(() => {
-	    if(load_plugin_file(pluginFolder)){
+	    let errors = load_plugin_file(pluginFolder);
+	    if(!errors){
 			reply("Nouveau plugin ajouté sur polybot");
 		} else {
-			reply("Impossible d'ajouter le plugin. Celui-ci entre en conflit avec un autre plugin");
+	        let response = "Problème lors de l'ajout du plugin";
+	        for(let i in errors){
+	            response = response + " - " + errors[i] + "\n";
+            }
+			reply(response);
 		}
 	})
 	.catch((err) => reply("Impossible d'ajouter le plugin. Problème lors du clonage du repository."));
