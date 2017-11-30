@@ -265,7 +265,7 @@ function ajout_plugin_dnd(reply,params, message){
 			if(!errors){
 				reply("Nouveau plugin ajouté sur polybot");
 			} else {
-	            let response = "Problème lors de l'ajout du plugin";
+	            let response = "Problème lors de l'ajout du plugin:\n";
 	            for(let i in errors){
 	                response = response + " - " + errors[i] + "\n";
 	            }
@@ -332,7 +332,7 @@ function ajout_plugin_git(reply, params){
 	    if(!errors){
 			reply("Nouveau plugin ajouté sur polybot");
 		} else {
-	        let response = "Problème lors de l'ajout du plugin";
+	        let response = "Problème lors de l'ajout du plugin:\n";
 	        for(let i in errors){
 	            response = response + " - " + errors[i] + "\n";
             }
