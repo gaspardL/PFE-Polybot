@@ -2,6 +2,7 @@
 
 const levenshtein = require("./levenshtein");
 const norm = require("./string_normalize");
+const fs = require('fs');
 
 var binding_rights = {};
 
@@ -13,11 +14,24 @@ function init(webapi){
 }
 
 function load_info(){
-
+    fs.readFile("data/user_rights.json", "utf8", function (err, data){
+        if (err){
+            console.log("Error in load_info:");
+            console.log(err);
+        } else {
+            binding_rights = JSON.parse(data);
+        }
+    });
 }
 
 function save_info(){
-
+    let json = JSON.stringify(binding_rights);
+    fs.writeFile("data/user_rights.json", json, 'utf8', function (err) {
+        if (err) {
+            console.log("Error in save_info:");
+            console.log(err);
+        }
+    });
 }
 
 function add_binding_right(user_id,binding_name){
