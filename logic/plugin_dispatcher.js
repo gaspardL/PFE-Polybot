@@ -244,19 +244,30 @@ function ajout_plugin_dnd(reply,params, message){
         return;
     }
 
-    download(message.file.url_private_download, path.join(__dirname, "plugins", message.file.name), (err) => {
-        if (err) {
-            console.error(err);
-            reply("Errueur pendant le chargement du plugin: "+err);
-            return;
-        }
-
-		if(load_plugin_file(message.file.name)){
-			reply("Nouveau plugin ajouté sur polybot");
-		} else {
-			reply("Impossible d'ajouter le plugin. Celui-ci entre en conflit avec un autre plugin");
+	// Création du dossier qui va contenir le fichier
+	var pluginFolder = "dndplugin"+ new Date().getTime();
+	fs.mkdir(path.join(__dirname, "plugins", pluginFolder), (err) => {
+		if(err){
+			console.log(err);
+			reply("Erreur pendant la création du dossier du plugin: "+err);
+			return;
 		}
-    });
+
+		// Téléchargement du fichier et renommage de celui ci en index.js dans le nouveau dossier créé
+		download(message.file.url_private_download, path.join(__dirname, "plugins", pluginFolder, "index.js"), (err) => {
+	        if (err) {
+	            console.error(err);
+	            reply("Erreur pendant le chargement du plugin: "+err);
+	            return;
+	        }
+
+			if(load_plugin_file(pluginFolder)){
+				reply("Nouveau plugin ajouté sur polybot");
+			} else {
+				reply("Impossible d'ajouter le plugin. Celui-ci entre en conflit avec un autre plugin");
+			}
+	    });
+	});
 }
 
 function download(url, dest, cb) {
