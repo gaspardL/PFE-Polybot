@@ -85,7 +85,7 @@ var binding_add_rights = {
     restricted : true,
     description:"Permet d'ajouter le droit d'utilisation d'une commande à un utilisateur",
     patterns : [
-        "ajoute( )(le(s))( )(droit(s))( )(de/d')( )(utiliser/utilisation)( )(du/de)( )(le/la)( )(plugin/commande/fonction) {command}( )(a) {user}",
+        "ajoute( )(le(s))( )(droit(s))( )(de/d')( )(utiliser/utilisation)( )(du/de)( )(le/la)( )(plugin/commande/fonction) {command} a/pour {user}",
         "autorise( )([monsieur]) {user} a/de/pour/sur( )(utiliser/utilisation)( )(la/le)( )(plugin/commande/fonction) {command}"
     ],
     synonyms :{
