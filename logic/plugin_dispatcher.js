@@ -12,6 +12,7 @@ require('dotenv').config();
 const path = require("path");
 const fs = require("fs");
 const request = require('request');
+const git = require('simple-git/promise');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 const rights = require("./user_rights");
@@ -131,7 +132,7 @@ function load_plugin(plugin){
 // Charge un plugin du dossier ./plugins
 function load_plugin_file(file){
     let plugin = require("./plugins/" + file);
-    load_plugin(plugin);
+    return load_plugin(plugin);
 
 }
 
@@ -250,8 +251,11 @@ function ajout_plugin_dnd(reply,params, message){
             return;
         }
 
-        load_plugin_file(message.file.name);
-        reply("Nouveau plugin ajouté sur polybot");
+		if(load_plugin_file(message.file.name)){
+			reply("Nouveau plugin ajouté sur polybot");
+		} else {
+			reply("Impossible d'ajouter le plugin. Celui-ci entre en conflit avec un autre plugin");
+		}
     });
 }
 
@@ -303,8 +307,18 @@ function download(url, dest, cb) {
     });
 }
 
-function ajout_plugin_git(params, message){
-    console.log(params.giturl);
+function ajout_plugin_git(reply, params){
+	var url = params.giturl.slice(1, -1);
+	var pluginFolder = "gplugin"+ new Date().getTime();
+	git().clone(url, path.join(__dirname, "plugins", pluginFolder))
+	.then(() => {
+	    if(load_plugin_file(pluginFolder)){
+			reply("Nouveau plugin ajouté sur polybot");
+		} else {
+			reply("Impossible d'ajouter le plugin. Celui-ci entre en conflit avec un autre plugin");
+		}
+	})
+	.catch((err) => reply("Impossible d'ajouter le plugin. Problème lors du clonage du repository."));
 }
 
 function init(web){

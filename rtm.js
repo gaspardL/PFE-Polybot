@@ -8,12 +8,6 @@ var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const dispatcher = require("./logic/plugin_dispatcher");
 
 
-// git().clone("https://github.com/gaspardL/Polybot-Test-Plugin.git", "./logic/plugins/tmp")
-// .then(() => dispatcher.load_plugins())
-// .catch((err) => console.error('failed: ', err));
-
-
-
 var token = process.env.SLACK_API_TOKEN || '';
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
