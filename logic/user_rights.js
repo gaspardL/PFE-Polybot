@@ -1,6 +1,7 @@
 "use strict";
 
 const levenshtein = require("./levenshtein");
+const norm = require("./string_normalize");
 
 var binding_rights = {};
 
@@ -49,10 +50,12 @@ function find_user(user_name, callback){
            let users = res.members;
            for(let i in users){
                let user = users[i];
-               let names = [user.profile.real_name_normalized,user.profile.display_name_normalized];
+               console.log(user);
+               console.log(norm(user.profile.real_name_normalized));
+               let names = [norm(user.profile.real_name_normalized),norm(user.profile.display_name_normalized)];
                for(let j in names){
                    let name = names[j];
-                   if(levenshtein(user_name,name) < 2){
+                   if(levenshtein(user_name,name) < 4){
                        found.push(user);
                        break;
                    }
@@ -69,7 +72,7 @@ var binding_add_rights = {
     description:"Permet d'ajouter le droit d'utilisation d'une commande à un utilisateur",
     patterns : [
         "ajoute( )(le(s))( )(droit(s))( )(de/d')( )(utiliser/utilisation)( )(du/de)( )(le/la)( )(plugin/commande/fonction) {command}( )(a) {user}",
-        "autorise( )([monsieur]) {user}( )(a/de/d'/pour)( )(utiliser/utilisation)( )(la/le)( )(plugin/commande/fonction) {command}"
+        "autorise( )([monsieur]) {user} a/de/pour/sur( )(utiliser/utilisation)( )(la/le)( )(plugin/commande/fonction) {command}"
     ],
     synonyms :{
         monsieur: ["m","mme","monsieur","madame","professeur","prof"]
@@ -81,20 +84,21 @@ var binding_add_rights = {
         }
     ],
     callback : function(reply,params){
-        let users = find_user(params.user);
-        if(users.length === 0){
-            reply("Je n'ai pas pu trouvé d'utilisateurs répondant au nom de "+params.user)
-        }else if(users.length === 1){
-            let user = users[0];
-            add_binding_right(user.id,params.command);
-            reply("J'ai ajouté les droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name)
-        }else{
-            let response = "Différents utilisateurs répondent au nom de "+params.user+":\n";
-            for(let i in users){
-                response = response + " - " + users[i].profile.real_name + "\n";
+        find_user(params.user,function(users){
+            if(users.length === 0){
+                reply("Je n'ai pas pu trouvé d'utilisateurs répondant au nom de "+params.user)
+            }else if(users.length === 1){
+                let user = users[0];
+                add_binding_right(user.id,params.command);
+                reply("J'ai ajouté les droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name)
+            }else{
+                let response = "Différents utilisateurs répondent au nom de "+params.user+":\n";
+                for(let i in users){
+                    response = response + " - " + users[i].profile.real_name + "\n";
+                }
+                reply(response);
             }
-            reply(response);
-        }
+        });
     }
 };
 
@@ -102,4 +106,4 @@ module.exports.has_rights = has_rights;
 module.exports.init = init;
 module.exports.add_binding_right = add_binding_right;
 module.exports.bindings = [binding_add_rights];
-module.exports.rights = "rights";
+module.exports.name = "rights";

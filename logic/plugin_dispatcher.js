@@ -87,6 +87,10 @@ function test_plugin(plugin_to_test){
         for (let j in binding.tests){
             let test = binding.tests[j];
             let result = dispatch(test.input,test_user,binding_test_list);
+            if(!result){
+                errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" n'active aucune commande");
+                continue;
+            }
             if(result.binding.name !== binding.name){
                 errors.push("La phrase \""+test.input+"\" de la commande \""+binding.name+"\" active la commande \""+result.binding.name+"\"");
                 continue;
