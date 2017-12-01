@@ -20,6 +20,7 @@ const rights = require("./user_rights");
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
+var plugin_list = {};
 var binding_list = {};
 
 function match(message,binding){
@@ -131,15 +132,18 @@ function load_plugin(plugin){
 
 // Charge un plugin du dossier ./plugins
 function load_plugin_file(file){
-    let plugin = require("./plugins/" + file);
-    return load_plugin(plugin);
-
+    let plugin = require(path.join(__dirname, "plugins", file));
+    var res = load_plugin(plugin);
+	if(!res){
+		plugin_list[plugin.name] = { dirname: file };
+	}
+	return res;
 }
 
 // Charge les plugins se trouvant dans le dossier ./plugins
 function load_plugins(){
     load_plugin(plugin_help);
-    load_plugin(plugin_ajout_plugin);
+    load_plugin(plugin_manager);
     load_plugin(rights);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
@@ -196,7 +200,7 @@ var plugin_help = {
     }]
 };
 
-var plugin_ajout_plugin = {
+var plugin_manager = {
     name : "ajout plugin",
     bindings : [{
         name : "ajout plugin drag&drop",
@@ -235,7 +239,26 @@ var plugin_ajout_plugin = {
             }
         ],
         callback : ajout_plugin_git
-    }]
+    },
+	{
+		name : "suppression plugin",
+		description : "Permet de supprimer des plugins du serveur",
+		restricted: true,
+		patterns : [
+				"([supprimer])( )(le)( )(l')[plugin] {name}",
+		],
+		synonyms :{
+				supprimer: ["supprime", "supprimer", "delete", "remove"],
+				plugin: ["plugin", "extension"]
+		},
+		tests :[
+				{
+						input: "supprime le plugin ping",
+						result: {name: "ping"}
+				}
+		],
+		callback : delete_plugin
+	}]
 };
 
 function ajout_plugin_dnd(reply,params, message){
@@ -255,16 +278,18 @@ function ajout_plugin_dnd(reply,params, message){
 
 		// Téléchargement du fichier et renommage de celui ci en index.js dans le nouveau dossier créé
 		download(message.file.url_private_download, path.join(__dirname, "plugins", pluginFolder, "index.js"), (err) => {
-	        if (err) {
-	            console.error(err);
-	            reply("Erreur pendant le chargement du plugin: "+err);
-	            return;
-	        }
+			if (err) {
+				console.error(err);
+				delete_plugin_folder(pluginFolder);
+				reply("Erreur pendant le chargement du plugin: "+err);
+				return;
+			}
 
 			let errors = load_plugin_file(pluginFolder);
 			if(!errors){
 				reply("Nouveau plugin ajouté sur polybot");
 			} else {
+				delete_plugin_folder(pluginFolder);
 	            let response = "Problème lors de l'ajout du plugin:\n";
 	            for(let i in errors){
 	                response = response + " - " + errors[i] + "\n";
@@ -332,6 +357,7 @@ function ajout_plugin_git(reply, params){
 	    if(!errors){
 			reply("Nouveau plugin ajouté sur polybot");
 		} else {
+			delete_plugin_folder(pluginFolder);
 	        let response = "Problème lors de l'ajout du plugin:\n";
 	        for(let i in errors){
 	            response = response + " - " + errors[i] + "\n";
@@ -340,6 +366,19 @@ function ajout_plugin_git(reply, params){
 		}
 	})
 	.catch((err) => reply("Impossible d'ajouter le plugin. Problème lors du clonage du repository."));
+}
+
+function delete_plugin_folder(dirname){
+	fs.rmdir(path.join(__dirname, "plugins", dirname), function(erreur){
+		if(erreur) {
+			console.log(erreur);
+		}
+	});
+}
+
+function delete_plugin(reply, params){
+	console.log(binding_list);
+	reply("WIP");
 }
 
 function init(web){
