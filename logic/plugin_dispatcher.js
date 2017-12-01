@@ -244,24 +244,35 @@ function ajout_plugin_dnd(reply,params, message){
         return;
     }
 
-    download(message.file.url_private_download, path.join(__dirname, "plugins", message.file.name), (err) => {
-        if (err) {
-            console.error(err);
-            reply("Erreur pendant le chargement du plugin: "+err);
-            return;
-        }
-
-        let errors = load_plugin_file(message.file.name);
-		if(!errors){
-			reply("Nouveau plugin ajouté sur polybot");
-		} else {
-            let response = "Problème lors de l'ajout du plugin:\n";
-            for(let i in errors){
-                response = response + " - " + errors[i] + "\n";
-            }
-            reply(response);
+	// Création du dossier qui va contenir le fichier
+	var pluginFolder = "dndplugin"+ new Date().getTime();
+	fs.mkdir(path.join(__dirname, "plugins", pluginFolder), (err) => {
+		if(err){
+			console.log(err);
+			reply("Erreur pendant la création du dossier du plugin: "+err);
+			return;
 		}
-    });
+
+		// Téléchargement du fichier et renommage de celui ci en index.js dans le nouveau dossier créé
+		download(message.file.url_private_download, path.join(__dirname, "plugins", pluginFolder, "index.js"), (err) => {
+	        if (err) {
+	            console.error(err);
+	            reply("Erreur pendant le chargement du plugin: "+err);
+	            return;
+	        }
+
+			let errors = load_plugin_file(pluginFolder);
+			if(!errors){
+				reply("Nouveau plugin ajouté sur polybot");
+			} else {
+	            let response = "Problème lors de l'ajout du plugin:\n";
+	            for(let i in errors){
+	                response = response + " - " + errors[i] + "\n";
+	            }
+	            reply(response);
+			}
+	    });
+	});
 }
 
 function download(url, dest, cb) {
