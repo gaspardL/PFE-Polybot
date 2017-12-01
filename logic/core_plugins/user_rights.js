@@ -8,6 +8,7 @@ var binding_rights = {};
 
 var web = null;
 var log = null;
+var binding_list = null;
 
 function load_info(){
     fs.readFile("data/user_rights.json", "utf8", function (err, data){
@@ -98,10 +99,18 @@ var binding_add_rights = {
             if(users.length === 0){
                 reply("Je n'ai pas pu trouvé d'utilisateurs répondant au nom de "+params.user)
             }else if(users.length === 1){
-                let user = users[0];
-                set_binding_right(user.id,params.command,true);
-                log.info("L'utilisateur "+message.user+" autorise "+user.id+" à utiliser la commande "+params.command);
-                reply("J'ai ajouté le droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name)
+                if(binding_list[params.command]) {
+                    if(!binding_list[params.command].restricted){
+                        reply("Je ne peux pas autoriser quelqu'un d'utiliser une commande déjà publique");
+                    } else {
+                        let user = users[0];
+                        set_binding_right(user.id, params.command, true);
+                        log.info("L'utilisateur " + message.user + " autorise " + user.id + " à utiliser la commande " + params.command);
+                        reply("J'ai ajouté le droit d'utilisation de la commande " + params.command + " à " + user.profile.real_name);
+                    }
+                }else {
+                    reply("Je ne trouve pas la commande " + params.command);
+                }
             }else{
                 let response = "Différents utilisateurs répondent au nom de "+params.user+":\n";
                 for(let i in users){
@@ -135,10 +144,18 @@ var binding_revoke_rights = {
             if(users.length === 0){
                 reply("Je n'ai pas pu trouvé d'utilisateurs répondant au nom de "+params.user)
             }else if(users.length === 1){
-                let user = users[0];
-                set_binding_right(user.id,params.command,false);
-                log.info("L'utilisateur "+message.user+" interdit "+user.id+" à utiliser la commande "+params.command);
-                reply("J'ai supprimé le droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name)
+                if(binding_list[params.command]){
+                    if(!binding_list[params.command].restricted){
+                        reply("Je ne peux pas interdire a quelqu'un d'utiliser une commande publique");
+                    } else{
+                        let user = users[0];
+                        set_binding_right(user.id,params.command,false);
+                        log.info("L'utilisateur "+message.user+" interdit "+user.id+" à utiliser la commande "+params.command);
+                        reply("J'ai supprimé le droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name);
+                    }
+                } else{
+                    reply("Je ne trouve pas la commande "+params.command);
+                }
             }else{
                 let response = "Différents utilisateurs répondent au nom de "+params.user+":\n";
                 for(let i in users){
@@ -150,9 +167,10 @@ var binding_revoke_rights = {
     }
 };
 
-function init(webapi,logger){
+function init(webapi,logger,bindings){
     web = webapi;
     log = logger;
+    binding_list = bindings;
     load_info();
     let plugin = {
         name: "rights",
