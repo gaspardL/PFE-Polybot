@@ -66,9 +66,14 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 		message.user = message.message.user;
 	}
 
-	//console.log(message);
+	console.log("--- Received:");
+	console.log(message);
+	console.log("---");
 
     function reply(result){
+        console.log("--- Sent:");
+        console.log(result);
+        console.log("---");
         if(result){
             messages.push({message:result,channel:message.channel});
         }

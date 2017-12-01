@@ -16,8 +16,8 @@ const git = require('simple-git/promise');
 const rmdir = require('rimraf');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
-const rights = require("./user_rights");
-
+const rights = require("./core_plugins/user_rights");
+const loggers = require("./logger");
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
@@ -147,7 +147,6 @@ function load_plugin_file(file){
 function load_plugins(){
     load_plugin(plugin_help);
     load_plugin(plugin_manager);
-    load_plugin(rights);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
         load_plugin_file(file);
@@ -394,7 +393,8 @@ function delete_plugin(reply, params){
 }
 
 function init(web){
-    rights.init(web);
+    let rights_plugin = rights.init(web,loggers.new_logger("rights"));
+    load_plugin(rights_plugin);
     load_plugins();
 }
 
