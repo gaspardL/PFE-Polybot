@@ -15,8 +15,8 @@ const request = require('request');
 const git = require('simple-git/promise');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
-const rights = require("./user_rights");
-
+const rights = require("./core_plugins/user_rights");
+const loggers = require("./logger");
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
@@ -342,7 +342,7 @@ function ajout_plugin_git(reply, params){
 }
 
 function init(web){
-    let rights_plugin = rights.init(web);
+    let rights_plugin = rights.init(web,loggers.new_logger("rights"));
     load_plugin(rights_plugin);
     load_plugins();
 }

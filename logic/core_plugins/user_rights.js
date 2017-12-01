@@ -1,13 +1,13 @@
 "use strict";
 
-const levenshtein = require("./levenshtein");
-const norm = require("./string_normalize");
+const levenshtein = require("../levenshtein");
+const norm = require("../string_normalize");
 const fs = require('fs');
 
 var binding_rights = {};
 
 var web = null;
-
+var log = null;
 
 function load_info(){
     fs.readFile("data/user_rights.json", "utf8", function (err, data){
@@ -93,13 +93,14 @@ var binding_add_rights = {
             result: {user:"charles edmon",command:"add_plugin"}
         }
     ],
-    callback : function(reply,params){
+    callback : function(reply,params,message){
         find_user(params.user,function(users){
             if(users.length === 0){
                 reply("Je n'ai pas pu trouvé d'utilisateurs répondant au nom de "+params.user)
             }else if(users.length === 1){
                 let user = users[0];
                 set_binding_right(user.id,params.command,true);
+                log.info("L'utilisateur "+message.user+" autorise "+user.id+" à utiliser la commande "+params.command);
                 reply("J'ai ajouté le droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name)
             }else{
                 let response = "Différents utilisateurs répondent au nom de "+params.user+":\n";
@@ -129,13 +130,14 @@ var binding_revoke_rights = {
             result: {user:"charles edmon",command:"add_plugin"}
         }
     ],
-    callback : function(reply,params){
+    callback : function(reply,params,message){
         find_user(params.user,function(users){
             if(users.length === 0){
                 reply("Je n'ai pas pu trouvé d'utilisateurs répondant au nom de "+params.user)
             }else if(users.length === 1){
                 let user = users[0];
                 set_binding_right(user.id,params.command,false);
+                log.info("L'utilisateur "+message.user+" interdit "+user.id+" à utiliser la commande "+params.command);
                 reply("J'ai supprimé le droit d'utilisation de la commande "+params.command+" à "+user.profile.real_name)
             }else{
                 let response = "Différents utilisateurs répondent au nom de "+params.user+":\n";
@@ -148,8 +150,9 @@ var binding_revoke_rights = {
     }
 };
 
-function init(webapi){
+function init(webapi,logger){
     web = webapi;
+    log = logger;
     load_info();
     let plugin = {
         name: "rights",
