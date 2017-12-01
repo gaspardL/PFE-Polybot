@@ -13,6 +13,7 @@ const path = require("path");
 const fs = require("fs");
 const request = require('request');
 const git = require('simple-git/promise');
+const rmdir = require('rimraf');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 const rights = require("./user_rights");
@@ -120,9 +121,11 @@ function load_plugin(plugin){
         }
         return errors;
     }else{
+		plugin_list[plugin.name] = { bindings: [] };
         // console.log("Tests passed");
         // console.log("Loading plugin \""+plugin.name+"\"");
         for(let i in plugin.bindings){
+			plugin_list[plugin.name].bindings.push(plugin.bindings[i].name);
             load_binding(plugin.bindings[i],binding_list)
         }
         console.log("Plugin \""+plugin.name+"\" loaded");
@@ -135,7 +138,7 @@ function load_plugin_file(file){
     let plugin = require(path.join(__dirname, "plugins", file));
     var res = load_plugin(plugin);
 	if(!res){
-		plugin_list[plugin.name] = { dirname: file };
+		plugin_list[plugin.name].dirname = file;
 	}
 	return res;
 }
@@ -201,7 +204,7 @@ var plugin_help = {
 };
 
 var plugin_manager = {
-    name : "ajout plugin",
+    name : "plugin manager",
     bindings : [{
         name : "ajout plugin drag&drop",
         restricted: true,
@@ -369,7 +372,7 @@ function ajout_plugin_git(reply, params){
 }
 
 function delete_plugin_folder(dirname){
-	fs.rmdir(path.join(__dirname, "plugins", dirname), function(erreur){
+	rmdir(path.join(__dirname, "plugins", dirname), function(erreur){
 		if(erreur) {
 			console.log(erreur);
 		}
@@ -377,8 +380,17 @@ function delete_plugin_folder(dirname){
 }
 
 function delete_plugin(reply, params){
-	console.log(binding_list);
-	reply("WIP");
+	if(!plugin_list[params.name]){
+		reply("Nom du plugin introuvable");
+		return;
+	}
+	delete_plugin_folder(plugin_list[params.name].dirname);
+	for(let b in plugin_list[params.name].bindings){
+		delete binding_list[plugin_list[params.name].bindings[b]];
+	}
+	delete plugin_list[params.name];
+	console.log("Plugin \""+params.name+"\" removed");
+	reply("Plugin "+params.name+" correctement supprimé");
 }
 
 function init(web){
