@@ -205,7 +205,7 @@ var plugin_help = {
 var plugin_manager = {
     name : "plugin manager",
     bindings : [{
-        name : "ajout plugin drag&drop",
+        name : "ajout plugin dragndrop",
         restricted: true,
         description : "Permet d'ajouter un plugin en uploadant directement un fichier sur slack. Commande à écrire dans le commentaire du fichier",
         patterns : [
@@ -393,7 +393,7 @@ function delete_plugin(reply, params){
 }
 
 function init(web){
-    let rights_plugin = rights.init(web,loggers.new_logger("rights"));
+    let rights_plugin = rights.init(web,loggers.new_logger("rights"),binding_list);
     load_plugin(rights_plugin);
     load_plugins();
 }
