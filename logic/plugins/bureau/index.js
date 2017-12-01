@@ -57,6 +57,7 @@ var binding_mon_bureaux = {
     description:"Indique le bureau de l'utilisateur",
     patterns : [
         "(ou se trouve)( )mon/ma( )[bureau]( )(?)",
+        "(ou est)( )mon/ma( )[bureau]( )(?)",
         "(quelle/quel)( )(est)( )mon/ma( )[bureau]( )(?)",
     ],
     synonyms :{
@@ -66,7 +67,11 @@ var binding_mon_bureaux = {
         {
             input: "Où se trouve mon bureau",
             result: {}
-        }
+        },
+        {
+            input: "Où est mon bureau",
+            result: {}
+        },
     ],
     callback : function(reply,params, message,webapi){
         webapi.users.info(message.user,function(err,res){
