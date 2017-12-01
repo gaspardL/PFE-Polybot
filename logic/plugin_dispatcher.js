@@ -140,7 +140,6 @@ function load_plugin_file(file){
 function load_plugins(){
     load_plugin(plugin_help);
     load_plugin(plugin_ajout_plugin);
-    load_plugin(rights);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
         load_plugin_file(file);
@@ -343,7 +342,8 @@ function ajout_plugin_git(reply, params){
 }
 
 function init(web){
-    rights.init(web);
+    let rights_plugin = rights.init(web);
+    load_plugin(rights_plugin);
     load_plugins();
 }
 
