@@ -126,6 +126,7 @@ function load_plugin(plugin){
 			plugin_list[plugin.name].bindings.push(plugin.bindings[i].name);
             load_binding(plugin.bindings[i],binding_list)
         }
+        plugin.init();
         console.log("Plugin \""+plugin.name+"\" loaded");
         return false;
     }

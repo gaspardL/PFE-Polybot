@@ -1,3 +1,5 @@
+function init(){}
+
 var ping = {
     name : "ping",
     description:"Simple ping/pong permettant des mesures de temps de réponse",
@@ -18,3 +20,4 @@ var ping = {
 
 module.exports.bindings = [ping];
 module.exports.name = "ping";
+module.exports.init = init;

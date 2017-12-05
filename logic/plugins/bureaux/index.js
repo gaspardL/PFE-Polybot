@@ -12,6 +12,8 @@ var bureaux = {
 
 };
 
+function init(){}
+
 function find_bureau(nom){
     let noms = nom.split(" ");
     for (let i in noms){
@@ -93,3 +95,4 @@ var binding_mon_bureaux = {
 
 module.exports.bindings = [binding_bureaux,binding_mon_bureaux];
 module.exports.name = "bureaux";
+module.exports.init = init;
