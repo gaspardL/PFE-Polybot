@@ -17,6 +17,7 @@ const rmdir = require('rimraf');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 const rights = require("./core_plugins/user_rights");
+const help = require("./core_plugins/help");
 const loggers = require("./logger");
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
@@ -145,7 +146,7 @@ function load_plugin_file(file){
 
 // Charge les plugins se trouvant dans le dossier ./plugins
 function load_plugins(){
-    load_plugin(plugin_help);
+    // load_plugin(plugin_help);
     load_plugin(plugin_manager);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
@@ -157,50 +158,6 @@ function load_plugins(){
 /*
  * PLUGINS MAITRES
  */
-
-function get_help(binding){
-    let help = "*"+binding.name+"*\n";
-    help += binding.description+"\n";
-    help += "_Patterns:_\n";
-    for (let i in binding.patterns){
-        help+=">"+binding.patterns[i]+"\n";
-    }
-    help += "_Exemples:_\n";
-    for (let i in binding.tests){
-        help += ">"+binding.tests[i].input+"\n";
-    }
-    return help;
-}
-
-function help(reply){
-    let response = "Voici les différentes commandes disponibles:\n\n";
-    for (let i in binding_list){
-        response += get_help(binding_list[i]) + "\n";
-    }
-    reply(response);
-}
-
-var plugin_help = {
-    name: "help",
-    bindings : [{
-        name : "help",
-        description : "Affiche les différentes commandes disponibles",
-        patterns : [
-            "help",
-            "aide",
-            "commandes",
-            "commands"
-        ],
-        synonyms :{},
-        tests :[
-            {
-                input: "help",
-                result: {}
-            }
-        ],
-        callback : help
-    }]
-};
 
 var plugin_manager = {
     name : "plugin manager",
@@ -395,6 +352,10 @@ function delete_plugin(reply, params){
 function init(web){
     let rights_plugin = rights.init(web,loggers.new_logger("rights"),binding_list);
     load_plugin(rights_plugin);
+	help.init(binding_list);
+	let help_plugin = require(path.join(__dirname, "core_plugins", "help"));
+	load_plugin(help_plugin);
+	
     load_plugins();
 }
 
