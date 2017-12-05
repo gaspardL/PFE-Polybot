@@ -11,14 +11,12 @@ function deepequals(obj1,obj2){
 require('dotenv').config();
 const path = require("path");
 const fs = require("fs");
-const request = require('request');
 const git = require('simple-git/promise');
-const rmdir = require('rimraf');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
-const rights = require("./core_plugins/user_rights");
-const help = require("./core_plugins/help");
 const loggers = require("./logger");
+
+var rights = null;
 
 var bot_token = process.env.SLACK_BOT_TOKEN || '';
 
@@ -145,218 +143,33 @@ function load_plugin_file(file){
 }
 
 // Charge les plugins se trouvant dans le dossier ./plugins
-function load_plugins(){
+function load_user_plugins(){
     // load_plugin(plugin_help);
-    load_plugin(plugin_manager);
+    // load_plugin(plugin_manager);
     var normalizedPath = path.join(__dirname, "plugins");
     fs.readdirSync(normalizedPath).forEach(function(file) {
         load_plugin_file(file);
     });
 }
 
-
-/*
- * PLUGINS MAITRES
- */
-
-var plugin_manager = {
-    name : "plugin manager",
-    bindings : [{
-        name : "ajout plugin dragndrop",
-        restricted: true,
-        description : "Permet d'ajouter un plugin en uploadant directement un fichier sur slack. Commande à écrire dans le commentaire du fichier",
-        patterns : [
-            "([ajouter])( )(le)( )(l')[plugin]",
-        ],
-        synonyms :{
-            ajouter: ["ajoute", "ajouter", "add"],
-            plugin: ["plugin", "extension"]
-        },
-        tests :[
-            {
-                input: "ajoute plugin",
-                result: {}
-            }
-        ],
-        callback : ajout_plugin_dnd
-    },
-    {
-        name : "ajout plugin lien git",
-        description : "Permet d'ajouter des plugins en fournissant un lien de repository git",
-        restricted: true,
-        patterns : [
-            "([ajouter])( )(le)( )(l')[plugin] {giturl}",
-        ],
-        synonyms :{
-            ajouter: ["ajoute", "ajouter", "add"],
-            plugin: ["plugin", "extension"]
-        },
-        tests :[
-            {
-                input: "ajoute plugin https://giturl.git",
-                result: {giturl: "https://giturl.git"}
-            }
-        ],
-        callback : ajout_plugin_git
-    },
-	{
-		name : "suppression plugin",
-		description : "Permet de supprimer des plugins du serveur",
-		restricted: true,
-		patterns : [
-				"([supprimer])( )(le)( )(l')[plugin] {name}",
-		],
-		synonyms :{
-				supprimer: ["supprime", "supprimer", "delete", "remove"],
-				plugin: ["plugin", "extension"]
-		},
-		tests :[
-				{
-						input: "supprime le plugin ping",
-						result: {name: "ping"}
-				}
-		],
-		callback : delete_plugin
-	}]
-};
-
-function ajout_plugin_dnd(reply,params, message){
-    if(message.subtype !== "file_share"){
-        reply("Veuillez uploader les sources de votre plugin et écrire cette commande en commentaire");
-        return;
-    }
-
-	// Création du dossier qui va contenir le fichier
-	var pluginFolder = "dndplugin"+ new Date().getTime();
-	fs.mkdir(path.join(__dirname, "plugins", pluginFolder), (err) => {
-		if(err){
-			console.log(err);
-			reply("Erreur pendant la création du dossier du plugin: "+err);
-			return;
-		}
-
-		// Téléchargement du fichier et renommage de celui ci en index.js dans le nouveau dossier créé
-		download(message.file.url_private_download, path.join(__dirname, "plugins", pluginFolder, "index.js"), (err) => {
-			if (err) {
-				console.error(err);
-				delete_plugin_folder(pluginFolder);
-				reply("Erreur pendant le chargement du plugin: "+err);
-				return;
-			}
-
-			let errors = load_plugin_file(pluginFolder);
-			if(!errors){
-				reply("Nouveau plugin ajouté sur polybot");
-			} else {
-				delete_plugin_folder(pluginFolder);
-	            let response = "Problème lors de l'ajout du plugin:\n";
-	            for(let i in errors){
-	                response = response + " - " + errors[i] + "\n";
-	            }
-	            reply(response);
-			}
-	    });
-	});
-}
-
-function download(url, dest, cb) {
-    // on créé un stream d'écriture qui nous permettra
-    // d'écrire au fur et à mesure que les données sont téléchargées
-    const file = fs.createWriteStream(dest);
-
-    // on lance le téléchargement
-    const sendReq = request.get(url, {
-        'auth': {
-        'bearer': bot_token
-        }
-    });
-
-    // on vérifie la validité du code de réponse HTTP
-    sendReq.on('response', (response) => {
-        if (response.statusCode !== 200) {
-            return cb('Response status was ' + response.statusCode);
-        }
-    });
-
-    // au cas où request rencontre une erreur
-    // on efface le fichier partiellement écrit
-    // puis on passe l'erreur au callback
-    sendReq.on('error', (err) => {
-        fs.unlink(dest);
-        cb(err.message);
-    });
-
-    // écrit directement le fichier téléchargé
-    sendReq.pipe(file);
-
-    // lorsque le téléchargement est terminé
-    // on appelle le callback
-    file.on('finish', () => {
-        // close étant asynchrone,
-        // le cb est appelé lorsque close a terminé
-        file.close(cb);
-    });
-
-    // si on rencontre une erreur lors de l'écriture du fichier
-    // on efface le fichier puis on passe l'erreur au callback
-    file.on('error', (err) => {
-        // on efface le fichier sans attendre son effacement
-        // on ne vérifie pas non plus les erreur pour l'effacement
-        fs.unlink(dest);
-        cb(err.message);
-    });
-}
-
-function ajout_plugin_git(reply, params){
-	var url = params.giturl.slice(1, -1);
-	var pluginFolder = "gplugin"+ new Date().getTime();
-	git().clone(url, path.join(__dirname, "plugins", pluginFolder))
-	.then(() => {
-	    let errors = load_plugin_file(pluginFolder);
-	    if(!errors){
-			reply("Nouveau plugin ajouté sur polybot");
-		} else {
-			delete_plugin_folder(pluginFolder);
-	        let response = "Problème lors de l'ajout du plugin:\n";
-	        for(let i in errors){
-	            response = response + " - " + errors[i] + "\n";
-            }
-			reply(response);
-		}
-	})
-	.catch((err) => reply("Impossible d'ajouter le plugin. Problème lors du clonage du repository."));
-}
-
-function delete_plugin_folder(dirname){
-	rmdir(path.join(__dirname, "plugins", dirname), function(erreur){
-		if(erreur) {
-			console.log(erreur);
-		}
-	});
-}
-
-function delete_plugin(reply, params){
-	if(!plugin_list[params.name]){
-		reply("Nom du plugin introuvable");
-		return;
-	}
-	delete_plugin_folder(plugin_list[params.name].dirname);
-	for(let b in plugin_list[params.name].bindings){
-		delete binding_list[plugin_list[params.name].bindings[b]];
-	}
-	delete plugin_list[params.name];
-	console.log("Plugin \""+params.name+"\" removed");
-	reply("Plugin "+params.name+" correctement supprimé");
-}
-
-function init(web){
+function load_core_plugins(web){
+    rights = require(path.join(__dirname, "core_plugins", "user_rights"));
     let rights_plugin = rights.init(web,loggers.new_logger("rights"),binding_list);
     load_plugin(rights_plugin);
-	help.init(binding_list);
-	let help_plugin = require(path.join(__dirname, "core_plugins", "help"));
+
+	const help_plugin = require(path.join(__dirname, "core_plugins", "help"));
+	help_plugin.init(binding_list);
 	load_plugin(help_plugin);
-	
-    load_plugins();
+
+    const plugin_manager = require(path.join(__dirname, "core_plugins", "plugin_manager"));
+    plugin_manager.init(plugin_list, binding_list, bot_token, load_plugin_file);
+	load_plugin(plugin_manager);
+}
+
+
+function init(web){
+    load_core_plugins(web);
+    load_user_plugins();
 }
 
 module.exports.dispatch = dispatch;
