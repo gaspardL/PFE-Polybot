@@ -153,8 +153,8 @@ function load_user_plugins(){
 
 function load_core_plugins(web){
     rights = require(path.join(__dirname, "core_plugins", "user_rights"));
-    let rights_plugin = rights.init(web,loggers.new_logger("rights"),binding_list);
-    load_plugin(rights_plugin);
+    rights.init(web,loggers.new_logger("rights"),binding_list);
+    load_plugin(rights);
 
 	const help_plugin = require(path.join(__dirname, "core_plugins", "help"));
 	help_plugin.init(binding_list);

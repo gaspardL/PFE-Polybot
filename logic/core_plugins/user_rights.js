@@ -172,13 +172,10 @@ function init(webapi,logger,bindings){
     log = logger;
     binding_list = bindings;
     load_info();
-    let plugin = {
-        name: "rights",
-        bindings: [binding_add_rights,binding_revoke_rights]
-    };
-    return plugin;
 }
 
 
 module.exports.has_rights = has_rights;
+module.exports.bindings = [binding_add_rights,binding_revoke_rights];
+module.exports.name = "rights";
 module.exports.init = init;
