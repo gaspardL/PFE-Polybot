@@ -11,7 +11,6 @@ function deepequals(obj1,obj2){
 require('dotenv').config();
 const path = require("path");
 const fs = require("fs");
-const git = require('simple-git/promise');
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 const loggers = require("./logger");

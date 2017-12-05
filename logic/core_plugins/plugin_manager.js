@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const rmdir = require('rimraf');
 const request = require('request');
+const git = require('simple-git/promise');
 
 var plugin_list;
 var binding_list;
