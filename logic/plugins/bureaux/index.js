@@ -1,5 +1,7 @@
 "use strict";
 
+const normalize = require("../../string_normalize");
+
 var bureaux = {
     papazian:{
         nom:"M. Christophe Papazian",
@@ -80,7 +82,7 @@ var binding_mon_bureaux = {
             if(err){
                 reply("Erreur: "+err);
             }else{
-                let nom = res.user.profile.real_name;
+                let nom = normalize(res.user.profile.real_name);
                 let bureau = find_bureau(nom);
                 if(bureau){
                     reply("Votre bureau est en "+bureau.bureau);
