@@ -59,9 +59,4 @@ function nlp(text){
     return words;
 }
 
-console.log(nlp("bonjour madame"));
-console.log(nlp("bonjoure maddame"));
-console.log(nlp("ou se trouv les salles de m mosser"));
-console.log(nlp("ou est mon bureau?"));
-console.log(nlp("quand passe le prochain bus?"));
-console.log(nlp("quel est le bureau de Dupond?"));
+module.exports = nlp;

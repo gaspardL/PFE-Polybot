@@ -14,6 +14,7 @@ const fs = require("fs");
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 const loggers = require("./logger");
+const nlp = require("./nlp");
 
 var rights = null;
 
@@ -23,26 +24,54 @@ var plugin_list = {};
 var binding_list = {};
 
 function match(message,binding){
-    for(let i in binding.expressions){
-        let expression = binding.expressions[i];
-        // console.log(expression);
-        let result = expression.match(message);
-        let params = {};
-        if(result){
-            for (let i in result){
-                let paramName = result[i]._parameterType._name;
-                params[paramName] = result[i].getValue(null);
+    let method = binding.method;
+    if(!method){
+        message = message.toLowerCase() // met en minuscule
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
+        for(let i in binding.expressions){
+            let expression = binding.expressions[i];
+            let result = expression.match(message);
+            let params = {};
+            if(result){
+                for (let i in result){
+                    let paramName = result[i]._parameterType._name;
+                    params[paramName] = result[i].getValue(null);
+                }
+                return params;
             }
-            return params;
         }
+    }
+    else if (method === "NLP"){
+        let keywords = nlp(message);
+        // On check que les keywords extraits de la phrase matchent ceux du binding
+        for(let i in binding.keywords){
+            let bkw = binding.keywords[i];
+            let found = false;
+            for(let j in bkw){
+                if(keywords.indexOf(bkw[j]) > -1){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                return false;
+            }
+        }
+
+        // On extrait les parametres
+        let params = {};
+        for(let i in binding.parameters){
+            let regex = new RegExp(binding.parameters[i]);
+            params[i] = regex.exec(message);
+        }
+        return params;
     }
     return false;
 }
 
 function dispatch(text,user,bindings){
     if(!bindings) bindings = binding_list;
-    text = text.toLowerCase() // met en minuscule
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
+
     for(let i in bindings){
         let binding = bindings[i];
         if(binding.restricted){
@@ -113,8 +142,8 @@ function load_plugin(plugin){
     let errors = test_plugin(plugin);
     if(errors.length > 0){
         // console.log("Tests failed");
+        console.log("Erreurs lors du chargement du plugin "+plugin.name);
         for (let i in errors){
-            console.log("Erreurs lors du chargement du plugin "+plugin.name);
             console.log(" - "+errors[i]);
         }
         return errors;

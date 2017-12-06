@@ -27,7 +27,7 @@ function find_bureau(nom){
 
 var binding_bureaux = {
     name : "bureaux",
-    method:"nlp",
+    method:"NLP",
     description:"Indique la salle des membre de l'administration de polytech",
     keywords:{
         question:["quel","où"],
@@ -49,7 +49,7 @@ var binding_bureaux = {
     tests :[
         {
             input: "Où se trouve la salle de M Papazian",
-            result: {prof:"papazian"}
+            result: {prof:"Papazian"}
         }
     ],
     callback : function(reply,params){
