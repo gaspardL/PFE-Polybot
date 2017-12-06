@@ -31,10 +31,13 @@
     "cucumber-expressions": "^5.0.3",
     "dotenv": "^4.0.0",
     "express": "^4.14.1",
+    "nlp-js-tools-french": "^1.0.9",
     "passport": "^0.3.2",
     "request": "^2.83.0",
-    "simple-git": "^1.82.0",
     "rimraf": "^2.6.2",
+    "simple-git": "^1.82.0",
+    "simple-spellchecker": "^0.9.4",
+    "teacher": "^0.1.0",
     "winston": "^3.0.0-rc1"
   }
 }
