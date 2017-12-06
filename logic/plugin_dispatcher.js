@@ -14,6 +14,7 @@ const fs = require("fs");
 const levenshtein = require("./levenshtein");
 const compiler = require("./binding_compiler");
 const loggers = require("./logger");
+const api = require("./api");
 
 var rights = null;
 
@@ -137,7 +138,7 @@ function load_plugin_file(file){
     var res = load_plugin(plugin);
 	if(!res){
 		plugin_list[plugin.name].dirname = file;
-        plugin.init();
+        plugin.init(api);
 	}
 	return res;
 }
@@ -152,9 +153,9 @@ function load_user_plugins(){
     });
 }
 
-function load_core_plugins(web){
+function load_core_plugins(){
     rights = require(path.join(__dirname, "core_plugins", "user_rights"));
-    rights.init(web,loggers.new_logger("rights"),binding_list);
+    rights.init(api,loggers.new_logger("rights"),binding_list);
     load_plugin(rights);
 
 	const help_plugin = require(path.join(__dirname, "core_plugins", "help"));
@@ -167,8 +168,8 @@ function load_core_plugins(web){
 }
 
 
-function init(web){
-    load_core_plugins(web);
+function init(){
+    load_core_plugins();
     load_user_plugins();
 }
 
