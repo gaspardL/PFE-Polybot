@@ -18,27 +18,37 @@ function spellcheck(text){
 
 function getKeywords(text){
     const config = {
-        tagTypes: ['ver', 'nom'],
-        strictness: true,
+        tagTypes: ['adv','ver','nom','pro','adj'],
+        strictness: false,
         minimumLength: 2,
         debug: false
     };
+    const keptTags = ["VER","NOM","ADV","PRO:int","PRO:rel","ADJ:int"];
     let nlptools = new NLPToolsFR(text, config);
 
-    // On cherche quels sont les mots qui sont des noms ou des verbes dans la phrase
+    // On que certains types de mots dans la phrase (noms, verbes, pronoms interrogatifs...)
     let pos = nlptools.posTagger();
     let keywordsID = [];
     for(let i in pos){
-        if(pos[i].pos[0] === 'VER' || pos[i].pos[0] === 'NOM'){
-            keywordsID.push(i);
+        let tags = pos[i].pos;
+        for(let j in tags){
+            let tag = tags[j];
+            if(keptTags.indexOf(tag) > -1){
+                keywordsID.push(pos[i].id);
+                break;
+            }
         }
+
     }
 
-    //On enlève les conjugaisons et les accords
+    //On cherche les racines des mots trouvés
     let lemmas = nlptools.lemmatizer();
     let keywords = [];
-    for(let i in keywordsID){
-        keywords.push(lemmas[keywordsID[i]].lemma);
+    for(let i in lemmas){
+        let lemma = lemmas[i];
+        if(keywordsID.indexOf(lemma.id) > -1){
+            keywords.push(lemma.lemma);
+        }
     }
     return keywords
 }
@@ -52,3 +62,6 @@ function nlp(text){
 console.log(nlp("bonjour madame"));
 console.log(nlp("bonjoure maddame"));
 console.log(nlp("ou se trouv les salles de m mosser"));
+console.log(nlp("ou est mon bureau?"));
+console.log(nlp("quand passe le prochain bus?"));
+console.log(nlp("quel est le bureau de Dupond?"));

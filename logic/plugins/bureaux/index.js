@@ -27,7 +27,15 @@ function find_bureau(nom){
 
 var binding_bureaux = {
     name : "bureaux",
+    method:"nlp",
     description:"Indique la salle des membre de l'administration de polytech",
+    keywords:{
+        question:["quel","où"],
+        bureau:["bureau"]
+    },
+    parameters:{
+        prof:"[A-Z][a-z]+"
+    },
     patterns : [
         "(ou se trouve)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
         "(ou est)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
