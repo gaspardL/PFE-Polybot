@@ -1,9 +1,9 @@
 const SpellChecker = require('simple-spellchecker');
 let dictionary = SpellChecker.getDictionarySync("fr-FR");
 
-var nlptoolsfr = require('nlp-js-tools-french');
+var NLPToolsFR = require('nlp-js-tools-french');
 
-function spellcheck1(text){
+function spellcheck(text){
     let words = text.split(" ");
     for(let i in words){
         let word = words[i];
@@ -19,26 +19,36 @@ function spellcheck1(text){
 function getKeywords(text){
     const config = {
         tagTypes: ['ver', 'nom'],
-        strictness: false,
+        strictness: true,
         minimumLength: 2,
         debug: false
     };
-    let nlptools = new nlptoolsfr(text, config);
-    console.log(nlptools.posTagger());
+    let nlptools = new NLPToolsFR(text, config);
+
+    // On cherche quels sont les mots qui sont des noms ou des verbes dans la phrase
+    let pos = nlptools.posTagger();
+    let keywordsID = [];
+    for(let i in pos){
+        if(pos[i].pos[0] === 'VER' || pos[i].pos[0] === 'NOM'){
+            keywordsID.push(i);
+        }
+    }
+
+    //On enlève les conjugaisons et les accords
     let lemmas = nlptools.lemmatizer();
     let keywords = [];
-    for(let i in lemmas){
-        keywords.push(lemmas[i].lemma);
+    for(let i in keywordsID){
+        keywords.push(lemmas[keywordsID[i]].lemma);
     }
     return keywords
 }
 
 function nlp(text){
-    text = spellcheck1(text);
+    text = spellcheck(text);
     let words = getKeywords(text);
     return words;
 }
 
 console.log(nlp("bonjour madame"));
 console.log(nlp("bonjoure maddame"));
-console.log(nlp("ou se trouv le burau de m mosser"));
+console.log(nlp("ou se trouv les salles de m mosser"));
