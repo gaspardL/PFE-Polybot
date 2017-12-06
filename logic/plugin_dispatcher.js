@@ -42,7 +42,19 @@ function match(message,binding){
         }
     }
     else if (method === "NLP"){
+        message = message.normalize('NFD');
         let keywords = nlp(message);
+        console.log(keywords);
+
+        for(let i in binding.antiwords){
+            let baw = binding.antiwords[i];
+            for(let j in baw){
+                if(keywords.indexOf(baw[j]) > -1){
+                    return false;
+                }
+            }
+        }
+
         // On check que les keywords extraits de la phrase matchent ceux du binding
         for(let i in binding.keywords){
             let bkw = binding.keywords[i];
@@ -61,8 +73,8 @@ function match(message,binding){
         // On extrait les parametres
         let params = {};
         for(let i in binding.parameters){
-            let regex = new RegExp(binding.parameters[i]);
-            params[i] = regex.exec(message);
+            console.log(message);
+            params[i] = message.match(new RegExp(binding.parameters[i][0],binding.parameters[i][1]));
         }
         return params;
     }

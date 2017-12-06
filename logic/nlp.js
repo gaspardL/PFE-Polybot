@@ -23,7 +23,7 @@ function getKeywords(text){
         minimumLength: 2,
         debug: false
     };
-    const keptTags = ["VER","NOM","ADV","PRO:int","PRO:rel","ADJ:int"];
+    const keptTags = ["VER","NOM","ADV","PRO:int","PRO:rel","PRO:pos","ADJ:int"];
     let nlptools = new NLPToolsFR(text, config);
 
     // On que certains types de mots dans la phrase (noms, verbes, pronoms interrogatifs...)
@@ -50,6 +50,7 @@ function getKeywords(text){
             keywords.push(lemma.lemma);
         }
     }
+    //console.log(nlptools);
     return keywords
 }
 
@@ -58,5 +59,7 @@ function nlp(text){
     let words = getKeywords(text);
     return words;
 }
+
+console.log(nlp("Où se trouve la salle de M Papazian"));
 
 module.exports = nlp;

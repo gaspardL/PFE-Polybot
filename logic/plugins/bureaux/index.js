@@ -33,8 +33,11 @@ var binding_bureaux = {
         question:["quel","où"],
         bureau:["bureau"]
     },
+    antiwords:{
+        mon:["mon"]
+    },
     parameters:{
-        prof:"[A-Z][a-z]+"
+        prof: ["[A-Z][a-z]+","g"]
     },
     patterns : [
         "(ou se trouve)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
@@ -48,8 +51,8 @@ var binding_bureaux = {
     },
     tests :[
         {
-            input: "Où se trouve la salle de M Papazian",
-            result: {prof:"Papazian"}
+            input: "Où se trouve le bureau de M Papazian",
+            result: {prof:["Ou","Papazian"]}
         }
     ],
     callback : function(reply,params){
