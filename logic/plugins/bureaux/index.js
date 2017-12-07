@@ -35,8 +35,8 @@ var binding_bureaux = {
     method:"NLP",
     description:"Indique la salle des membre de l'administration de polytech",
     keywords:{
-        question:["quel","où"],
-        bureau:["bureau"]
+        question:["quel","quelle","où"],
+        bureau:["bureau","salle"]
     },
     antiwords:{
         mon:["mon"]
@@ -56,9 +56,17 @@ var binding_bureaux = {
     },
     tests :[
         {
-            input: "Où se trouve le bureau de M Papazian",
-            result: {prof:["Ou","Papazian"]}
-        }
+            input: "Où se trouve le bureau de Mme Dupont?",
+            result: {prof:["Ou","Mme","Dupont"]}
+        },
+        {
+            input: "Quel est le bureau de Mme Dupont ?",
+            result: {prof:["Quel","Mme","Dupont"]}
+        },
+        {
+            input: "Quel est le numéro de salle de Dupont ?",
+            result: {prof:["Quel","Dupont"]}
+        },
     ],
     callback : function(reply,params){
         let bureau;
@@ -75,7 +83,14 @@ var binding_bureaux = {
         if(bureau){
             reply("Le bureau de "+bureau.nom+" est en "+bureau.bureau);
         }else{
-            reply("Je n'ai pas trouvé de bureaux attribué à \""+params.prof+"\"");
+            if(typeof params.prof === "string"){
+                reply("Je n'ai pas trouvé de bureaux attribué à \""+params.prof+"\"");
+            }
+            else if(typeof params.prof === "object"){
+                let profs = params.prof.join('" ou "');
+                reply("Je n'ai pas trouvé de bureaux attribué à \""+profs+"\"");
+            }
+
         }
     }
 };
