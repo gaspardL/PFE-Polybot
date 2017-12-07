@@ -3,6 +3,7 @@
 module.exports.init = init;	// private. Users can't use it
 module.exports.send_message = send_message; // send_message(message, channel)
 module.exports.get_user_info = get_user_info; // get_user_info(user_id, callback)
+module.exports.web_send_message = web_send_message;
 
 var is_inited = false;
 
@@ -30,6 +31,7 @@ start_sending_messages();
 
 function send_message_request(){
 	if(messages.length >= 1){
+		console.log(messages);
 		let request = messages.shift();
         rtm.sendMessage(request.message, request.channel,function(error,m){
             if(error){
@@ -79,4 +81,14 @@ function get_user_info(user_id,callback){
 
 function delete_user_info(user_id){
 	delete users_infos[user_id];
+}
+
+function web_send_message(message,channel){
+    web.chat.postMessage(channel, message, function(err, res) {
+        if (err) {
+            console.log('Error:', err);
+        } else {
+            console.log('Message sent: ', res);
+        }
+    });
 }
