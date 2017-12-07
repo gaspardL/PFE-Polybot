@@ -6,7 +6,7 @@ const fs = require('fs');
 
 var binding_rights = {};
 
-var web = null;
+var api = null;
 var log = null;
 var binding_list = null;
 
@@ -52,7 +52,7 @@ function has_rights(user,binding_name){
 }
 
 function find_user(user_name, callback){
-    web.users.list(function (err, res) {
+    api.get_user_list(function (err, res) {
        if(err){
            console.log("Error in find_user: ");
            console.log(err);
@@ -167,8 +167,8 @@ var binding_revoke_rights = {
     }
 };
 
-function init(webapi,logger,bindings){
-    web = webapi;
+function init(botapi, logger, bindings){
+    api = botapi;
     log = logger;
     binding_list = bindings;
     load_info();

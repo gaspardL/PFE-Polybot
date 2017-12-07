@@ -1,4 +1,4 @@
-function init(){}
+function init(api){}
 
 var binding_conflicting = {
     name : "conflict_test",

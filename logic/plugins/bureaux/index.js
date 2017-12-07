@@ -1,5 +1,7 @@
 "use strict";
 
+const normalize = require("../../string_normalize");
+
 var bureaux = {
     papazian:{
         nom:"M. Christophe Papazian",
@@ -12,7 +14,11 @@ var bureaux = {
 
 };
 
-function init(){}
+var webapi = null;
+
+function init(api){
+	webapi = api;
+}
 
 function find_bureau(noms){
     for (let i in noms){
@@ -95,12 +101,12 @@ var binding_mon_bureaux = {
             result: {}
         },
     ],
-    callback : function(reply,params, message,webapi){
-        webapi.users.info(message.user,function(err,res){
+    callback : function(reply, params, message){
+        webapi.get_user_info(message.user, function(err,res){
             if(err){
                 reply("Erreur: "+err);
             }else{
-                let nom = res.user.profile.real_name;
+                let nom = normalize(res.profile.real_name);
                 let bureau = find_bureau(nom.split(" "));
                 if(bureau){
                     reply("Votre bureau est en "+bureau.bureau);

@@ -2,10 +2,11 @@
 
 require('dotenv').config();
 const git = require('simple-git/promise');
-var WebClient = require('@slack/client').WebClient;
-var RtmClient = require('@slack/client').RtmClient;
-var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
+const WebClient = require('@slack/client').WebClient;
+const RtmClient = require('@slack/client').RtmClient;
+const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const dispatcher = require("./logic/plugin_dispatcher");
+const api = require("./logic/api");
 
 
 var token = process.env.SLACK_API_TOKEN || '';
@@ -16,45 +17,8 @@ var rtm = new RtmClient(bot_token);
 rtm.start();
 console.log("Server connected to slackbot ("+bot_token+")");
 
-dispatcher.init(web);
-
-var messages = [];
-
-var message_sending_timeout = null;
-
-function start_sending_messages(){
-    if(!message_sending_timeout)
-        message_sending_timeout = setInterval(send_message,100);
-}
-
-start_sending_messages();
-
-function send_message(){
-	if(messages.length >= 1){
-		let request = messages.shift();
-        rtm.sendMessage(request.message, request.channel,function(error,m){
-            if(error){
-                console.log("Error in send_message:");
-                console.log(error);
-                clearInterval(message_sending_timeout);
-                message_sending_timeout = null;
-                messages.unshift(request);
-                setTimeout(start_sending_messages,1000);
-            }
-		});
-	}
-}
-
-function get_user_info(user_id,callback){
-    web.users.info(user_id,function(err,res){
-        if(err){
-            console.log("Error in get_user_info:");
-            console.log(err);
-        }else{
-            callback(res.user);
-        }
-    });
-}
+api.init(web, rtm);
+dispatcher.init();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	let text = message.text;
@@ -75,14 +39,18 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         console.log(result);
         console.log("---");
         if(result){
-            messages.push({message:result,channel:message.channel});
+			api.send_message(result, message.channel);
         }
     }
 
-    get_user_info(message.user,function(user){
+    api.get_user_info(message.user,function(err, user){
+		if(err){
+			reply("Error while accessing your informations");
+			return;
+		}
         let match = dispatcher.dispatch(text,user);
         if(match){
-            match.binding.callback(reply,match.params,message,web);
+            match.binding.callback(reply, match.params, message);
         }
         else{
             reply("Je n'ai pas compris votre commande. Pour savoir ce que je peux faire, dites \"help\".");
