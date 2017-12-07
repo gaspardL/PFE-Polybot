@@ -1,5 +1,9 @@
 
-function init(api){}
+var api = null;
+
+function init(botapi){
+	api = botapi;
+}
 
 
 var binding_broadcast_now = {
@@ -24,12 +28,10 @@ var binding_broadcast_now = {
     ],
     callback : function(reply,params, message){
 		var originalMessage = message.text.substring(message.text.indexOf('"')+1, message.text.lastIndexOf('"'));
-		if(originalMessage.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "") == params.message){
-			console.log("ok");
+		if(originalMessage.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "") != params.message){
+			originalMessage = params.message;
 		}
-		else {
-			console.log("ko");
-		}
+		api.send_message("test dm", "U81NYS49F");
     }
 };
 

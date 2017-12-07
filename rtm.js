@@ -20,13 +20,21 @@ console.log("Server connected to slackbot ("+bot_token+")");
 api.init(web, rtm);
 dispatcher.init();
 
+web.im.list(function (err, res) {
+    if(err){
+        console.log(err);
+    }
+    else{
+        console.log(res);
+    }
+});
+
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-	let text = message.text;
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
-		text = message.file.initial_comment.comment;
+		message.text = message.file.initial_comment.comment;
 	}
 	if(message.subtype === "message_changed"){
-		text = message.message.text;
+		message.text = message.message.text;
 		message.user = message.message.user;
 	}
 
@@ -48,7 +56,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 			reply("Error while accessing your informations");
 			return;
 		}
-        let match = dispatcher.dispatch(text,user);
+        let match = dispatcher.dispatch(message.text,user);
         if(match){
             match.binding.callback(reply, match.params, message);
         }
