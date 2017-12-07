@@ -14,10 +14,9 @@ var bureaux = {
 
 function init(){}
 
-function find_bureau(nom){
-    let noms = nom.split(" ");
+function find_bureau(noms){
     for (let i in noms){
-        let bureau = bureaux[noms[i]];
+        let bureau = bureaux[noms[i].toLowerCase()];
         if(bureau){
             return bureau;
         }
@@ -56,7 +55,17 @@ var binding_bureaux = {
         }
     ],
     callback : function(reply,params){
-        let bureau = find_bureau(params.prof);
+        let bureau;
+        if(typeof params.prof === "string"){
+           bureau = find_bureau(params.prof.split(" "));
+        }
+        else if(typeof params.prof === "object"){
+            bureau = find_bureau(params.prof);
+        }
+        else{
+            console.log("Error in command 'bureaux': parameter prof is not a correct type:");
+            console.log(params.prof);
+        }
         if(bureau){
             reply("Le bureau de "+bureau.nom+" est en "+bureau.bureau);
         }else{
@@ -92,7 +101,7 @@ var binding_mon_bureaux = {
                 reply("Erreur: "+err);
             }else{
                 let nom = res.user.profile.real_name;
-                let bureau = find_bureau(nom);
+                let bureau = find_bureau(nom.split(" "));
                 if(bureau){
                     reply("Votre bureau est en "+bureau.bureau);
                 }

@@ -90,3 +90,5 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     });
 
 });
+
+console.log("Bot ready");

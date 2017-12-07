@@ -60,6 +60,4 @@ function nlp(text){
     return words;
 }
 
-console.log(nlp("Où se trouve la salle de M Papazian"));
-
 module.exports = nlp;
