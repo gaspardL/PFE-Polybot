@@ -20,20 +20,6 @@ console.log("Server connected to slackbot ("+bot_token+")");
 api.init(web, rtm);
 dispatcher.init();
 
-web.im.list(function (err, res) {
-    if(err){
-        console.log("Error in im.list:");
-        console.log(err);
-    }
-    else{
-        console.log(res);
-        for(let i in res.ims){
-            let channel = res.ims[i].id;
-            api.web_send_message("YO SALU",channel);
-        }
-    }
-});
-
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
 		message.text = message.file.initial_comment.comment;

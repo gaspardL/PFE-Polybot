@@ -31,7 +31,19 @@ var binding_broadcast_now = {
 		if(originalMessage.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "") != params.message){
 			originalMessage = params.message;
 		}
-		api.send_message("test dm", "U81NYS49F");
+        api.get_user_info(message.user, function(err1, res1){
+            var auteur = res1.real_name;
+            api.get_im_list(function(err, res){
+    			for(let i in res.ims){
+    				let channel = res.ims[i].id;
+    				if(channel != message.channel){
+    		            api.web_send_message("Message transmis par *"+auteur+"* :\n>"+originalMessage, channel);
+    				}
+    			}
+                reply("Message transmis.");
+    		});
+        });
+
     }
 };
 

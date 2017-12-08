@@ -4,6 +4,7 @@ module.exports.init = init;	// private. Users can't use it
 module.exports.send_message = send_message; // send_message(message, channel)
 module.exports.get_user_info = get_user_info; // get_user_info(user_id, callback)
 module.exports.web_send_message = web_send_message;
+module.exports.get_im_list = get_im_list;
 
 var is_inited = false;
 
@@ -87,8 +88,17 @@ function web_send_message(message,channel){
     web.chat.postMessage(channel, message, function(err, res) {
         if (err) {
             console.log('Error:', err);
-        } else {
-            console.log('Message sent: ', res);
         }
     });
+}
+
+function get_im_list(callback){
+	web.im.list(function (err, res) {
+	    if(err){
+	        console.log("Error in im.list:");
+	        console.log(err);
+			callback(err, res);
+	    }
+	    callback(err, res);
+	});
 }
