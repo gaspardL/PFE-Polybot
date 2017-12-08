@@ -5,12 +5,19 @@ module.exports.send_message = send_message; // send_message(message, channel)
 module.exports.get_user_info = get_user_info; // get_user_info(user_id, callback)
 module.exports.web_send_message = web_send_message;
 module.exports.get_im_list = get_im_list;
+module.exports.get_user_group = get_user_group;
+module.exports.log = log;
 
 var is_inited = false;
 
 var web = null;
 var rtm = null;
 var messages = [];
+
+var Method = {
+  RTM: 1,
+  WEB: 2
+};
 
 function init(p_web, p_rtm){
 	if(!is_inited){
@@ -32,24 +39,37 @@ start_sending_messages();
 
 function send_message_request(){
 	if(messages.length >= 1){
-		console.log(messages);
 		let request = messages.shift();
-        rtm.sendMessage(request.message, request.channel,function(error,m){
-            if(error){
-                console.log("Error in send_message:");
-                console.log(error);
-                clearInterval(message_sending_timeout);
-                message_sending_timeout = null;
-                messages.unshift(request);
-                setTimeout(start_sending_messages,1000);
-            }
-		});
+        if(request.method == Method.RTM){
+            rtm.sendMessage(request.message, request.channel, (error,m) => {
+                if(error){
+                    console.log("Error in send_message rtm:");
+                    console.log(error);
+                    clearInterval(message_sending_timeout);
+                    message_sending_timeout = null;
+                    messages.unshift(request);
+                    setTimeout(start_sending_messages,1000);
+                }
+    		});
+        }
+        if(request.method == Method.WEB){
+            web.chat.postMessage(request.channel, request.message, (err, res) => {
+                if (err) {
+                    console.log("Error in send_message web:");
+                    console.log(err);
+                    clearInterval(message_sending_timeout);
+                    message_sending_timeout = null;
+                    messages.unshift(request);
+                    setTimeout(start_sending_messages,1000);
+                }
+            });
+        }
 	}
 }
 
 function send_message(message, channel){
 	if(message && channel){
-		messages.push({message:message, channel:channel});
+		messages.push({message:message, channel:channel, method:Method.RTM});
 	}
 }
 
@@ -85,11 +105,9 @@ function delete_user_info(user_id){
 }
 
 function web_send_message(message,channel){
-    web.chat.postMessage(channel, message, function(err, res) {
-        if (err) {
-            console.log('Error:', err);
-        }
-    });
+    if(message && channel){
+		messages.push({message:message, channel:channel, method:Method.WEB});
+	}
 }
 
 function get_im_list(callback){
@@ -101,4 +119,18 @@ function get_im_list(callback){
 	    }
 	    callback(err, res);
 	});
+}
+
+var users_group = {
+    U81NYS49F: ["si5", "al"],
+    U81P5T8PQ: ["si5", "al"]
+};
+
+function get_user_group(user){
+    return users_group[user];
+}
+
+function log(){
+    // var m = ["test1", "test2", "test3"];
+    // console.log("index of "+m.indexOf("test4"));
 }
