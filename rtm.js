@@ -59,3 +59,5 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
     });
 
 });
+
+console.log("Bot ready");

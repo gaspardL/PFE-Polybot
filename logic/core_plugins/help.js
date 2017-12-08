@@ -8,9 +8,11 @@ function init(binding_list){
 function get_help(binding){
     let help = "*"+binding.name+"*\n";
     help += binding.description+"\n";
-    help += "_Patterns:_\n";
-    for (let i in binding.patterns){
-        help+=">"+binding.patterns[i]+"\n";
+    if(!binding.method) {
+        help += "_Patterns:_\n";
+        for (let i in binding.patterns) {
+            help += ">" + binding.patterns[i] + "\n";
+        }
     }
     help += "_Exemples:_\n";
     for (let i in binding.tests){
