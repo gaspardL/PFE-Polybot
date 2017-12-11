@@ -21,6 +21,10 @@ var binding_broadcast_now = {
             input: "Envoie le message \"Venez chercher vos relevés\"",
             result: {message:"venez chercher vos releves"}
         },
+        {
+            input: "Transmet à tout le monde ce message \"Venez chercher vos relevés\"",
+            result: {message:"venez chercher vos releves"}
+        },
 		{
             input: "broadcast \"Venez chercher vos relevés\"",
             result: {message:"venez chercher vos releves"}
