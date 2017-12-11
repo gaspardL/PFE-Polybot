@@ -44,10 +44,16 @@ function is_admin(user){
 }
 
 function has_rights(user,binding_name){
-    if(binding_rights[user.id] && binding_rights[user.id][binding_name]){
-        return true;
+    if(!binding_list[binding_name]) return false;
+    
+    if(binding_rights[user.id] && binding_rights[user.id][binding_name] != undefined){
+        return binding_rights[user.id][binding_name];
     }else{
-        return is_admin(user);
+        if(binding_list[binding_name].restricted){
+            return is_admin(user);
+        }else{
+            return true;
+        }
     }
 }
 

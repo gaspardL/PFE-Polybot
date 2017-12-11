@@ -2,6 +2,7 @@
 
 module.exports.init = init;	// private. Users can't use it
 module.exports.send_message = send_message; // send_message(message, channel)
+module.exports.get_user_list = get_user_list;
 module.exports.get_user_info = get_user_info; // get_user_info(user_id, callback)
 module.exports.web_send_message = web_send_message;
 module.exports.get_im_list = get_im_list;
