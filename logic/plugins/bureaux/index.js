@@ -1,6 +1,9 @@
 "use strict";
 
-const normalize = require("../../string_normalize");
+const normalize = function(str) {
+    return str.toLowerCase() // met en minuscule
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
+};
 
 var bureaux = {
     papazian:{
@@ -43,7 +46,7 @@ var binding_bureaux = {
     },
     parameters:{
         prof: ["[A-Z][a-z]+","g"]
-    },
+    },/*
     patterns : [
         "(ou se trouve)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
         "(ou est)( )(la/le)( )[bureau]( )(de/du)( )([monsieur]) {prof}( )(?)",
@@ -53,7 +56,7 @@ var binding_bureaux = {
     synonyms :{
         bureau : ["salle","bureau"],
         monsieur: ["m","mme","monsieur","madame","professeur","prof"]
-    },
+    },*/
     tests :[
         {
             input: "Où se trouve le bureau de Mme Dupont?",

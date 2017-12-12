@@ -38,6 +38,7 @@
     "simple-git": "^1.82.0",
     "simple-spellchecker": "^0.9.4",
     "teacher": "^0.1.0",
-    "winston": "^3.0.0-rc1"
+    "winston": "^3.0.0-rc1",
+    "xlsx": "^0.11.12"
   }
 }

@@ -69,3 +69,4 @@ local_*
 .idea/
 
 logic/plugins/ping2.js
+tmp/
