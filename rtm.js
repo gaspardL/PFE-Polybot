@@ -88,9 +88,30 @@ function downloadTemp(url,filename,callback){
 }
 
 rtm.on(RTM_EVENTS.MESSAGE, (message) => {
+    let promises = [];
+
 	let text = message.text;
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
 		text = message.file.initial_comment.comment;
+        promises.push(new Promise(function(resolve,reject){
+            downloadTemp(message.file.url_private_download,message.file.name,function(err,filepath){
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                resolve(filepath);
+                setTimeout(function () {
+                    rimraf(path.dirname(filepath),function (err) {
+                        if(err) console.log(err);
+                    });
+                },60000)
+                /*
+                let book = XLSX.readFile(filepath);
+                let sheet = book.Sheets[book.SheetNames[0]];
+                let obj = XLSX.utils.sheet_to_json(sheet);
+                console.log(obj);*/
+            });
+        }))
 	}
 	if(message.subtype === "message_changed"){
 		text = message.message.text;
