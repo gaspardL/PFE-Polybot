@@ -9,7 +9,6 @@ const dispatcher = require("./logic/plugin_dispatcher");
 const api = require("./logic/api");
 const https = require('https');
 const { URL } = require('url');
-const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 const request = require('request');
@@ -105,11 +104,6 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
                         if(err) console.log(err);
                     });
                 },60000)
-                /*
-                let book = XLSX.readFile(filepath);
-                let sheet = book.Sheets[book.SheetNames[0]];
-                let obj = XLSX.utils.sheet_to_json(sheet);
-                console.log(obj);*/
             });
         }))
 	}
@@ -147,7 +141,13 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
         let filepath = values[values.length - 2];
         let match = dispatcher.dispatch(text,user);
         if(match){
-            match.binding.callback(reply, match.params, message,filepath);
+            try {
+                match.binding.callback(reply, match.params, message, filepath);
+            }catch(err){
+                reply("Désolé, une erreur est survenue.");
+                console.error("Error with command "+match.binding.name+": ");
+                console.error(err);
+            }
         }
         else{
             reply("Je n'ai pas compris votre commande. Pour savoir ce que je peux faire, dites \"help\".");
