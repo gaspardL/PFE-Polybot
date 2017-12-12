@@ -1,6 +1,7 @@
 "use strict";
 
 const XLSX = require('xlsx');
+const fs = require('fs');
 
 const normalize = function(str) {
     return str.toLowerCase() // met en minuscule
@@ -20,8 +21,30 @@ var bureaux = {
 
 var webapi = null;
 
+function load_info(){
+    fs.readFile("data/bureaux.json", "utf8", function (err, data){
+        if (err){
+            console.log("Error in load_info: file bureaux.json not found. It will be created");
+            save_info();
+        } else {
+            bureaux = JSON.parse(data);
+        }
+    });
+}
+
+function save_info(){
+    let json = JSON.stringify(bureaux);
+    fs.writeFile("data/bureaux.json", json, 'utf8', function (err) {
+        if (err) {
+            console.log("Error in save_info:");
+            console.log(err);
+        }
+    });
+}
+
 function init(api){
 	webapi = api;
+	load_info();
 }
 
 function find_bureau(noms){
@@ -179,6 +202,7 @@ function update_bureaux(reply,params,message,filepath){
             bureau: line.Bureau
         }
     }
+    save_info();
     reply("Les bureaux ont bien été mis à jour! ("+obj.length+" entrées)")
 }
 
