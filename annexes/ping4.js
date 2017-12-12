@@ -18,3 +18,4 @@ var ping4 = {
 
 module.exports.bindings = [ping4];
 module.exports.name = "ping4";
+module.exports.init = function(){};

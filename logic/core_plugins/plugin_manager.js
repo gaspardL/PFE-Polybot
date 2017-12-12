@@ -78,21 +78,45 @@ var binding_deleteplugin = {
 	callback : delete_plugin
 };
 
-function ajout_plugin_dnd(reply,params, message){
+function ajout_plugin_dnd(reply,params, message, filepath){
 	if(message.subtype !== "file_share"){
 		reply("Veuillez uploader les sources de votre plugin et écrire cette commande en commentaire");
 		return;
 	}
 
 	// Création du dossier qui va contenir le fichier
-	var pluginFolder = "dndplugin"+ new Date().getTime();
-	fs.mkdir(path.join(plugins_folder, pluginFolder), (err) => {
+	let pluginFolder = "dndplugin"+ new Date().getTime();
+	let pluginFolderPath = path.join(plugins_folder, pluginFolder);
+
+	fs.mkdir(pluginFolderPath, (err) => {
 		if(err){
 			console.log(err);
 			reply("Erreur pendant la création du dossier du plugin: "+err);
 			return;
 		}
 
+		fs.rename(filepath, path.join(pluginFolderPath,"index.js"),function(err){
+			if(err){
+                console.log(err);
+                delete_plugin_folder(pluginFolder);
+                reply("Désolé, il y a eu une erreur innatendue." + err);
+                return;
+			}
+            let errors = load_plugin_file(pluginFolder);
+            if(!errors){
+                reply("Nouveau plugin ajouté sur polybot");
+            } else {
+                delete_plugin_folder(pluginFolder);
+                let response = "Problème lors de l'ajout du plugin:\n";
+                for(let i in errors){
+                    response = response + " - " + errors[i] + "\n";
+                }
+                reply(response);
+            }
+		})
+    })
+
+		/*
 		// Téléchargement du fichier et renommage de celui ci en index.js dans le nouveau dossier créé
 		download(message.file.url_private_download, path.join(plugins_folder, pluginFolder, "index.js"), (err) => {
 			if (err) {
@@ -115,54 +139,7 @@ function ajout_plugin_dnd(reply,params, message){
 			}
 		});
 	});
-}
-
-function download(url, dest, cb) {
-	// on créé un stream d'écriture qui nous permettra
-	// d'écrire au fur et à mesure que les données sont téléchargées
-	const file = fs.createWriteStream(dest);
-
-	// on lance le téléchargement
-	const sendReq = request.get(url, {
-		'auth': {
-			'bearer': bot_token
-		}
-	});
-
-	// on vérifie la validité du code de réponse HTTP
-	sendReq.on('response', (response) => {
-		if (response.statusCode !== 200) {
-			return cb('Response status was ' + response.statusCode);
-		}
-	});
-
-	// au cas où request rencontre une erreur
-	// on efface le fichier partiellement écrit
-	// puis on passe l'erreur au callback
-	sendReq.on('error', (err) => {
-		fs.unlink(dest);
-		cb(err.message);
-	});
-
-	// écrit directement le fichier téléchargé
-	sendReq.pipe(file);
-
-	// lorsque le téléchargement est terminé
-	// on appelle le callback
-	file.on('finish', () => {
-		// close étant asynchrone,
-		// le cb est appelé lorsque close a terminé
-		file.close(cb);
-	});
-
-	// si on rencontre une erreur lors de l'écriture du fichier
-	// on efface le fichier puis on passe l'erreur au callback
-	file.on('error', (err) => {
-		// on efface le fichier sans attendre son effacement
-		// on ne vérifie pas non plus les erreur pour l'effacement
-		fs.unlink(dest);
-		cb(err.message);
-	});
+	*/
 }
 
 function ajout_plugin_git(reply, params){

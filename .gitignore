@@ -70,3 +70,5 @@ local_*
 
 logic/plugins/ping2.js
 tmp/
+logic/plugins/dndplugin*/
+logic/plugins/gplugin*/
