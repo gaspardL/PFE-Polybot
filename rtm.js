@@ -26,6 +26,8 @@ console.log("Server connected to slackbot ("+bot_token+")");
 api.init(web, rtm);
 dispatcher.init();
 
+api.log();
+
 function download(url, dest, cb) {
     // on créé un stream d'écriture qui nous permettra
     // d'écrire au fur et à mesure que les données sont téléchargées
@@ -85,85 +87,10 @@ function downloadTemp(url,filename,callback){
     });
 }
 
-/*
-function download(urll,callback){
-    let url = new URL(urll);
-    let options = {
-        hostname: url.hostname,
-        port: url.port,
-        path: url.pathname,
-        method: 'GET',
-        headers: {
-            Authorization: 'Bearer '+bot_token
-        }
-    };
-    https.get(options, (resp) => {
-        let data = '';
-
-        // A chunk of data has been recieved.
-        resp.on('data', (chunk) => {
-            data += chunk;
-        });
-
-        // The whole response has been received. Print out the result.
-        resp.on('end', () => {
-            callback(null,data);
-        });
-
-    }).on("error", (err) => {
-        console.log("Error in download:");
-        console.log(err);
-        callback(err,null);
-    });
-}*/
-
-rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    let promises = [];
-
+rtm.on(RTM_EVENTS.MESSAGE, (message) => {
 	let text = message.text;
 	if(message.subtype === "file_share" && message.file.comments_count > 0){
 		text = message.file.initial_comment.comment;
-		/*
-		download(message.file.url_private_download,function (err, data) {
-            console.log("--- Data");
-		    console.log(data);
-		    console.log("---");
-		    let book = XLSX.readFile("./annexes/bureaux.xlsx");
-		    let sheet = book.Sheets[book.SheetNames[0]];
-            let obj = XLSX.utils.sheet_to_json(sheet);
-            console.log(obj);
-        });*/
-		/*
-        console.log(message.file.url_private_download);
-        let pth = fs.mkdtempSync(path.join(".","tmp","file_share_"));
-		let filepath = path.join(pth,message.file.name);
-		console.log(filepath);
-		download(message.file.url_private_download,filepath,function (err) {
-            let book = XLSX.readFile(filepath);
-            let sheet = book.Sheets[book.SheetNames[0]];
-            let obj = XLSX.utils.sheet_to_json(sheet);
-            console.log(obj);
-        })*/
-		promises.push(new Promise(function(resolve,reject){
-            downloadTemp(message.file.url_private_download,message.file.name,function(err,filepath){
-                if(err) {
-                    reject(err);
-                    return;
-                }
-                resolve(filepath);
-                setTimeout(function () {
-                    rimraf(path.dirname(filepath),function (err) {
-                        if(err) console.log(err);
-                    });
-                },60000)
-                /*
-                let book = XLSX.readFile(filepath);
-                let sheet = book.Sheets[book.SheetNames[0]];
-                let obj = XLSX.utils.sheet_to_json(sheet);
-                console.log(obj);*/
-            });
-        }))
-
 	}
 	if(message.subtype === "message_changed"){
 		text = message.message.text;

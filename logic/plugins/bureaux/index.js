@@ -72,6 +72,10 @@ var binding_bureaux = {
         },
     ],
     callback : function(reply,params){
+		if(params.prof == null){
+            reply("Professeur non reconnu. Vous devez commencer le nom propre par une majuscule.");
+            return;
+        }
         let bureau;
         if(typeof params.prof === "string"){
            bureau = find_bureau(params.prof.split(" "));

@@ -87,7 +87,7 @@ function dispatch(text,user,bindings){
 
     for(let i in bindings){
         let binding = bindings[i];
-        if(binding.restricted){
+        if(binding.restricted && !(user.id === "test" && user.is_admin)){
             if(!rights.has_rights(user,binding.name)){
                 continue;
             }
@@ -200,7 +200,7 @@ function load_core_plugins(){
     load_plugin(rights);
 
 	const help_plugin = require(path.join(__dirname, "core_plugins", "help"));
-	help_plugin.init(binding_list);
+	help_plugin.init(api, binding_list, rights.has_rights);
 	load_plugin(help_plugin);
 
     const plugin_manager = require(path.join(__dirname, "core_plugins", "plugin_manager"));
