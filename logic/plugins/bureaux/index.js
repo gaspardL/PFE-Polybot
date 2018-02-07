@@ -1,5 +1,8 @@
 "use strict";
 
+const XLSX = require('xlsx');
+const fs = require('fs');
+
 const normalize = function(str) {
     return str.toLowerCase() // met en minuscule
         .normalize('NFD').replace(/[\u0300-\u036f]/g, ""); // enlève les accents
@@ -14,13 +17,34 @@ var bureaux = {
         nom:"M. Sébastien Mosser",
         bureau:"O+444"
     }
-
 };
 
 var webapi = null;
 
+function load_info(){
+    fs.readFile("data/bureaux.json", "utf8", function (err, data){
+        if (err){
+            console.log("Error in load_info: file bureaux.json not found. It will be created");
+            save_info();
+        } else {
+            bureaux = JSON.parse(data);
+        }
+    });
+}
+
+function save_info(){
+    let json = JSON.stringify(bureaux);
+    fs.writeFile("data/bureaux.json", json, 'utf8', function (err) {
+        if (err) {
+            console.log("Error in save_info:");
+            console.log(err);
+        }
+    });
+}
+
 function init(api){
 	webapi = api;
+	load_info();
 }
 
 function find_bureau(noms){
@@ -141,6 +165,47 @@ var binding_mon_bureaux = {
     }
 };
 
-module.exports.bindings = [binding_bureaux,binding_mon_bureaux];
+var binding_update_bureaux = {
+    name : "update_bureau",
+    description:"Met a jour la liste des bureaux",
+    patterns : [
+        "mise/met a jour des/les/la (liste)( )(des)( )bureaux(.)",
+        "met les/la (liste)( )(des)( )bureaux a jour(.)"
+    ],
+    synonyms :{
+        bureau : ["salle","bureau"],
+    },
+    tests :[
+        {
+            input: "Met à jour les bureaux",
+            result: {}
+        },
+        {
+            input: "Met la liste des bureaux à jour",
+            result: {}
+        },
+    ],
+    callback : update_bureaux
+};
+
+function update_bureaux(reply,params,message,filepath){
+    let book = XLSX.readFile(filepath);
+    let sheet = book.Sheets[book.SheetNames[0]];
+    let obj = XLSX.utils.sheet_to_json(sheet);
+    for(let i in obj){
+        let line = obj[i];
+        let nom = line.Nom;
+        let noms = nom.split(" ");
+        let last_name = noms[noms.length - 1].toLowerCase();
+        bureaux[last_name] = {
+            nom: nom,
+            bureau: line.Bureau
+        }
+    }
+    save_info();
+    reply("Les bureaux ont bien été mis à jour! ("+obj.length+" entrées)")
+}
+
+module.exports.bindings = [binding_bureaux,binding_mon_bureaux,binding_update_bureaux];
 module.exports.name = "bureaux";
 module.exports.init = init;

@@ -13,7 +13,7 @@ var binding_list = null;
 function load_info(){
     fs.readFile("data/user_rights.json", "utf8", function (err, data){
         if (err){
-            console.log("Error in load_info: file user_rights not found. It will be created");
+            console.log("Error in load_info: file user_rights.json not found. It will be created");
 			save_info();
         } else {
             binding_rights = JSON.parse(data);
