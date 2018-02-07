@@ -159,7 +159,10 @@ function ajout_plugin_git(reply, params){
 			reply(response);
 		}
 	})
-	.catch((err) => reply("Impossible d'ajouter le plugin. Problème lors du clonage du repository."));
+	.catch((err) => {
+		console.log(err);
+		reply("Impossible d'ajouter le plugin. Problème lors du clonage du repository.");});
+
 }
 
 function delete_plugin_folder(dirname){

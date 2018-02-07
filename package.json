@@ -1,44 +1,44 @@
 {
-  "name": "pfe-polybot",
-  "version": "1.0.0",
-  "description": "Bot modulable pour Slack",
-  "main": "index.js",
-  "scripts": {
-    "start": "node rtm.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
-  },
-  "keywords": [
-    "polytech'nice-sophia",
-    "pfe",
-    "polybot",
-    "module"
-  ],
-  "author": "Robin Alonzo, Gaspard Lacroix",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/gaspardL/PFE-Polybot/issues"
-  },
-  "homepage": "https://github.com/gaspardL/PFE-Polybot#readme",
-  "dependencies": {
-    "@aoberoi/passport-slack": "^1.0.5",
-    "@slack/client": "^3.8.1",
-    "@slack/events-api": "^1.0.0",
-    "body-parser": "^1.16.1",
-    "cucumber-expressions": "5.0.3",
-    "dotenv": "^4.0.0",
-    "express": "^4.14.1",
-    "nlp-js-tools-french": "^1.0.9",
-    "passport": "^0.3.2",
-    "request": "^2.83.0",
-    "rimraf": "^2.6.2",
-    "simple-git": "^1.82.0",
-    "simple-spellchecker": "^0.9.4",
-    "teacher": "^0.1.0",
-    "winston": "^3.0.0-rc1",
-    "xlsx": "^0.11.12"
-  }
+    "name": "pfe-polybot",
+    "version": "1.0.0",
+    "description": "Bot modulable pour Slack",
+    "main": "index.js",
+    "scripts": {
+        "start": "node rtm.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gaspardL/PFE-Polybot.git"
+    },
+    "keywords": [
+        "polytech'nice-sophia",
+        "pfe",
+        "polybot",
+        "module"
+    ],
+    "author": "Robin Alonzo, Gaspard Lacroix",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/gaspardL/PFE-Polybot/issues"
+    },
+    "homepage": "https://github.com/gaspardL/PFE-Polybot#readme",
+    "dependencies": {
+        "@aoberoi/passport-slack": "^1.0.5",
+        "@slack/client": "^3.8.1",
+        "@slack/events-api": "^1.0.0",
+        "body-parser": "^1.16.1",
+        "cucumber-expressions": "5.0.3",
+        "dotenv": "^4.0.0",
+        "express": "^4.14.1",
+        "nlp-js-tools-french": "^1.0.9",
+        "passport": "^0.3.2",
+        "request": "^2.83.0",
+        "rimraf": "^2.6.2",
+        "simple-git": "^1.82.0",
+        "simple-spellchecker": "^0.9.4",
+        "teacher": "^0.1.0",
+        "winston": "^3.0.0-rc1",
+        "xlsx": "^0.11.12"
+    }
 }

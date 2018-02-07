@@ -12,12 +12,12 @@ function init(botapi, binding_list, has_rights_fct){
 function get_help(user, binding){
     let help = "*"+binding.name+"*\n";
     help += binding.description+"\n";
-    if(!binding.method) {
-        help += "_Patterns:_\n";
-        for (let i in binding.patterns) {
-            help += ">" + binding.patterns[i] + "\n";
-        }
-    }
+    // if(!binding.method) {
+    //     help += "_Patterns:_\n";
+    //     for (let i in binding.patterns) {
+    //         help += ">" + binding.patterns[i] + "\n";
+    //     }
+    // }
     help += "_Exemples:_\n";
     for (let i in binding.tests){
         help += ">"+binding.tests[i].input+"\n";
