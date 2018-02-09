@@ -17,7 +17,7 @@ for(var i in bot_tokens){
 	rtm.push(client);
 }
 
-var NB_REQUEST = 150;
+var NB_REQUEST = 100;
 var INTERVAL = 300;
 
 var request_time = [];
